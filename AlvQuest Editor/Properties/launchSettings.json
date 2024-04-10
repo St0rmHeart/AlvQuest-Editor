@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AlvQuest Editor": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}
