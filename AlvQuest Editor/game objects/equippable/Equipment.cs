@@ -1,55 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AlvQuest_Editor
+﻿namespace AlvQuest_Editor
 {
     /// <summary>
     /// Предмет снаряжения, который можно одеть в соответсвующий ему слот
     /// </summary>
-    public class Equipment
+    public class Equipment : BaseEquippableEntity
     {
-        #region _____________________ПОЛЯ_____________________
-        //название предмета
-        public string Name { get; private set; }
-        //Часть тела, на которую можно надеть предмет
-        public EBodyPart BodyPart { get; private set; }
-        //список эффектов, реализующий действие снаряжения
-        public List<BaseEffect> Effects { get; set; } = [];
-        #endregion
-
-        #region _____________________КОНСТРУКТОР_____________________
-
-        /// <summary>
-        /// Стандартный конструктор предмета снаряжения
-        /// </summary>
-        /// <param name="bodyPart">Часть тела, на которую можно надеть предмет</param>
-        /// <param name="name">Название предмета</param>
-        public Equipment(string name, EBodyPart bodyPart, List<BaseEffect> effects = null)
+        //ячейка снаряжения
+        public EBodyPart BodyPart { get; }
+        private Equipment(string name, string description, string iconName, List<BaseEffect> effects, EBodyPart bodyPart) : base(name, description, iconName, effects)
         {
-            Name = name;
             BodyPart = bodyPart;
-            Effects = effects ?? [];
         }
-        #endregion
-
-        #region _____________________МЕТОДЫ_____________________
-        public Equipment Clone()
+        public override Equipment Clone()
         {
-            List<BaseEffect> cloneEffects = [];
-            foreach (var originalEffect in Effects)
-            {
-                cloneEffects.Add(originalEffect.Clone());
-            }
-
             return new Equipment(
-                Name,
-                BodyPart,
-                cloneEffects
-                );
+                name: Name,
+                description: Description,
+                iconName: IconName,
+                effects: Effects.Select(effect => effect.Clone()).ToList(),
+                bodyPart: BodyPart);
         }
-        #endregion
+        public override EquipmentDTO GetDTO()
+        {
+            var dto = new EquipmentDTO
+            {
+                BaseData = GetBaseData(),
+                Effects = Effects.Select(effect => effect.GetDTO()).ToList(),
+                BodyPart = BodyPart
+            };
+            return dto;
+        }
+        public class EquipmentDTO : BaseEquippableEntityDTO
+        {
+            public EBodyPart BodyPart { get; set; }
+            public override Equipment RecreateOriginal()
+            {
+                return new Equipment(
+                        name: BaseData.Name,
+                        description: BaseData.Description,
+                        iconName: BaseData.IconName,
+                        effects: new List<BaseEffect>(Effects.Select(effect => effect.RecreateOriginal()).ToList()),
+                        bodyPart: BodyPart);
+
+            }
+        }
+        public class EquipmentBuilder : BaseBuilder<EquipmentBuilder, Equipment, EquipmentDTO>
+        {
+            public EquipmentBuilder SetEffect(BaseEffectDTO newEffect)
+            {
+                int newEffectHashCode = newEffect.GetHashCode();
+                foreach (var effect in _entityData.Effects)
+                {
+                    if (newEffectHashCode == effect.GetHashCode()) throw new Exception("Такой эффект уже существует!");
+                }
+                _entityData.Effects.Add(newEffect);
+                return this;
+            }
+            public EquipmentBuilder SetBodypart(EBodyPart bodyPart)
+            {
+                if (bodyPart == EBodyPart.None) throw new ArgumentException("None в свойстве bodyPart недопутим");
+                _entityData.BodyPart = bodyPart;
+                return this;
+            }
+            protected override void ValidateAdditionalContent()
+            {
+                if (_entityData.Effects?.Count == 0) throw new ArgumentException("Не добавлено ниодногоэффекта");
+            }
+        }
     }
 }

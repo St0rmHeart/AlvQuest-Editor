@@ -2,7 +2,7 @@
 
 namespace AlvQuest_Editor
 {
-    public partial class CharacterCard : Form
+    public partial class CharacterCard : BaseEditorForm
     {
         private void DrawButton_Click(object sender, EventArgs e)
         {

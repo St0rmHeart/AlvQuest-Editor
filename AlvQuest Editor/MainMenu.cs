@@ -1,40 +1,13 @@
-﻿
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 using System.Text.Encodings.Web;
 
-/*var newTriggerParameter = new TriggerParameterModifier.TPM_Builder()
-               .Name("Наростающая ярость.")
-               .Description(
-                   "При нанесении более 7 едениц физического урона ваша сила увеличиваете на 5% на 2 хода.\n" +
-                   "Может складываться до 4х раз.")
-               .TriggerlogicalModule(new LM_02_damageThreshold(damageType: EDamageType.PhysicalDamage, threshold: 7))
-               .TicklogicalModule(new LM_CONSTANT_TRUE())
-               .Duration(2)
-               .MaxStack(4)
-               .ComposeLink(EPlayerType.Self)
-               .ComposeLink(ECharacteristic.Strength)
-               .ComposeLink(EDerivative.Value)
-               .ComposeLink(EVariable.C1)
-               .AddLink()
-               .AddValue(0.05)
-               .ComposeTriggerEvent(EPlayerType.Enemy)
-               .ComposeTriggerEvent(EEvent.DamageTaking)
-               .AddTriggerEvent()
-               .ComposeTickEvent(EPlayerType.Self)
-               .ComposeTickEvent(EEvent.StepExecution)
-               .AddTickEventt()
-               .Build();
-                _effectPanelsList.Add(new EffectPanel(newTriggerParameter));*/
-
 namespace AlvQuest_Editor
 {
-    public partial class MainMenu : Form
+    public partial class MainMenu : BaseEditorForm
     {
         private static readonly string _filePathPPM = "json data/effectsPPM.json";
         private static readonly string _filePathTPM = "json data/effectsTPM.json";
-        private static readonly string _filePathLME = "json data/effectsLME.json";
-        private readonly CharacterCard _characterCard;
         private readonly Arena _arena;
         private readonly List<EffectPanel> _effectPanelsList = [];
         private void DisplayAllEffectPanels()
@@ -45,43 +18,56 @@ namespace AlvQuest_Editor
                 _gameEntityListPanel.Controls.Add(_effectPanelsList[i].SetSerialPosition(i));
             }
         }
-        public MainMenu(CharacterCard characterCard)
+        private void MainMenu_KeyDown_Esc(object sender, KeyEventArgs e)
         {
-
+            // Проверяем, была ли нажата клавиша Esc
+            if (e.KeyCode == Keys.Escape)
+            {
+                // Закрываем форму
+                Close();
+            }
+        }
+        public MainMenu()
+        {
+            KeyDown += MainMenu_KeyDown_Esc;
             #region GameData
             var CBuilder = new Character.CBuilder();
             var PPMBuilder = new PassiveParameterModifier.PPM_Builder();
             var TPMBuilder = new TriggerParameterModifier.TPM_Builder();
 
 
-            var sword = new Equipment("Древний Эльфийский Меч", EBodyPart.Weapon);
+
 
             var newPassiveEffect = PPMBuilder
-                .Name("Живучесть.")
-                .Description("Увеличивает максимальное здоровье на 10.")
-                .Icon("FireKnightIcon")
-                .AddLink(EPlayerType.Self, ECharacteristic.Endurance, EDerivative.MaxHealth, EVariable.C2)
-                .AddValue(10)
-                .Build();
-            sword.Effects.Add(newPassiveEffect);
+                .SetName("Живучесть.")
+                .SetDescription("Увеличивает максимальное здоровье на 10.")
+                .SetIcon("FireKnightIcon")
+                .SetLink(EPlayerType.Self, ECharacteristic.Endurance, EDerivative.MaxHealth, EVariable.C2, 10)
+                .BuildEntity();
 
             var newTriggerParameter = TPMBuilder
-                .Name("Наростающая ярость.")
-                .Description(
+                .SetName("Нарастающая ярость.")
+                .SetDescription(
                     "При нанесении более 7 едениц физического урона ваша сила увеличиваете на 5% на 2 хода.\n" +
                     "Может складываться до 4х раз.")
-                .Icon("FireKnightIcon")
-                .TriggerlogicalModule(new LM_02_damageThreshold(damageType: EDamageType.PhysicalDamage, threshold: 7))
-                .TicklogicalModule(new LM_CONSTANT_TRUE())
-                .Duration(2)
-                .MaxStack(4)
-                .AddLink(EPlayerType.Self, ECharacteristic.Strength, EDerivative.Value, EVariable.C1)
-                .AddValue(0.05)
-                .AddTriggerEvent(EPlayerType.Enemy, EEvent.DamageTaking)
-                .AddTickEventt(EPlayerType.Self, EEvent.StepExecution)
-                .Build();
-            sword.Effects.Add(newTriggerParameter);
+                .SetIcon("FireKnightIcon")
+                .SetTriggerlogicalModule(new LM_02_damageThreshold(damageType: EDamageType.PhysicalDamage, threshold: 7))
+                .SetTicklogicalModule(new LM_CONSTANT_TRUE())
+                .SetDuration(2)
+                .SetMaxStack(4)
+                .SetLink(EPlayerType.Self, ECharacteristic.Strength, EDerivative.Value, EVariable.C1, 0.05)
+                .SetTriggerEvent(EPlayerType.Enemy, EEvent.DamageTaking)
+                .SetTickEventt(EPlayerType.Self, EEvent.StepExecution)
+                .BuildEntity();
 
+            var sword = new Equipment.EquipmentBuilder()
+                .SetName("Древний Эльфийский Меч")
+                .SetDescription("Старинный клинок, сохранивший остроку даже спустя сотни лет")
+                .SetIcon("FireKnoghtIcon")
+                .SetBodypart(EBodyPart.Weapon)
+                .SetEffect(AlvQuestStatic.DTOConverter.ConvertPPMtoDTO(newPassiveEffect))
+                .SetEffect(AlvQuestStatic.DTOConverter.ConvertTPMtoDTO(newTriggerParameter))
+                .BuildEntity();
             var testHero = CBuilder
                 .With_Name("Огн. Рыцарь")
                 .With_XP(1874)
@@ -98,17 +84,7 @@ namespace AlvQuest_Editor
             var templateArema = new Arena(testHero, AlvQuestStatic.TEMPLATE_CHARACTER);
             #endregion
             _arena = templateArema;
-            _characterCard = characterCard;
             InitializeComponent();
-            // Подписываемся на события мыши
-            MouseDown += MainMenuMouseDown;
-            MouseMove += MainMenuMouseMove;
-            MouseUp += MainMenuMouseUp;
-            //Подписываем загрузку и сохрание данных
-            Load += EditorJSONDataLoad;
-            FormClosing += EditorJSONDataSave;
-            //реализуем работу поисковика
-            _searchByNameTextBox.TextChanged += SearchByName;
         }
 
         #region Работа с Json
@@ -120,7 +96,7 @@ namespace AlvQuest_Editor
             if (File.Exists(_filePathPPM))
             {
                 string jsonPPM = File.ReadAllText(_filePathPPM);
-                var dtoList = JsonSerializer.Deserialize<List<PPM_DTO>>(jsonPPM);
+                var dtoList = JsonSerializer.Deserialize<List<PassiveParameterModifier.PPM_DTO>>(jsonPPM);
                 if (dtoList != null)
                 {
                     foreach (var dto in dtoList)
@@ -134,7 +110,7 @@ namespace AlvQuest_Editor
             if (File.Exists(_filePathTPM))
             {
                 string jsonTPM = File.ReadAllText(_filePathTPM);
-                var dtoList = JsonSerializer.Deserialize<List<TPM_DTO>>(jsonTPM);
+                var dtoList = JsonSerializer.Deserialize<List<TriggerParameterModifier.TPM_DTO>>(jsonTPM);
                 if (dtoList != null)
                 {
                     foreach (var dto in dtoList)
@@ -189,7 +165,7 @@ namespace AlvQuest_Editor
         {
             JsonSerializerOptions options = new JsonSerializerOptions
             {
-                WriteIndented = true, 
+                WriteIndented = true,
                 IncludeFields = true,
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             };
@@ -211,15 +187,6 @@ namespace AlvQuest_Editor
 
             string jsonTPM = JsonSerializer.Serialize(TPMdtoList, options);
             File.WriteAllText(_filePathTPM, jsonTPM);
-
-            /*// Сохранение в JSON для LogicalModuleEffect
-            var LMEdtoList = _effectPanelsList
-                .Where(lme => lme.Effect is LogicalModuleEffect) // Отфильтровать только объекты типа LogicalModuleEffect
-                .Select(lme => ((LogicalModuleEffect)lme.Effect).GetDTO()) // Привести объекты к типу LogicalModuleEffect и вызвать метод GetDTO()
-                .ToList();
-
-            string jsonLME = JsonSerializer.Serialize(LMEdtoList, options);
-            File.WriteAllText(_filePathLME, jsonLME);*/
         }
         #endregion
 
@@ -248,7 +215,7 @@ namespace AlvQuest_Editor
         #region Обработка кнопок
         private void UpdateCardButton_Click(object sender, EventArgs e)
         {
-            _characterCard.UpdateCard(_arena._player);
+            EditorStatic.CharacterCard.UpdateCard(_arena._player);
         }
         private void ResetButtonsColors()
         {
@@ -287,7 +254,7 @@ namespace AlvQuest_Editor
         }
         private void SearchModeButton_Click(object sender, EventArgs e)
         {
-            if(_searchModeButton.Text == "Категория")
+            if (_searchModeButton.Text == "Категория")
             {
                 ResetButtonsColors();
                 _searchModeButton.Text = "Все объекты";
@@ -297,7 +264,38 @@ namespace AlvQuest_Editor
                 _searchModeButton.Text = "Категория";
             }
         }
+        private void EffectTypeSelectionMode()
+        {
+            _effectsCreationModeButon.Enabled = !_effectsCreationModeButon.Enabled;
+            _perkCreationModeButon.Enabled = !_perkCreationModeButon.Enabled;
+            _equipmentCreationModeButon.Enabled = !_equipmentCreationModeButon.Enabled;
+            _spellCreationModeButon.Enabled = !_spellCreationModeButon.Enabled;
+            _characterCreationModeButon.Enabled = !_characterCreationModeButon.Enabled;
+            _effectTypeSelectionPanel.Visible = !_effectTypeSelectionPanel.Visible;
+        }
+        private void EffectsCreationModeButon_Click(object sender, EventArgs e)
+        {
+            EffectTypeSelectionMode();
+        }
+        private void EffectTypeSelectionPane_MouseLeave(object sender, EventArgs e)
+        {
+            Point relativeMousePos = _effectTypeSelectionPanel.PointToClient(Cursor.Position);
+            if (!_effectTypeSelectionPanel.ClientRectangle.Contains(relativeMousePos))
+            {
+                EffectTypeSelectionMode();
+            }
+        }
+
         #endregion
+
+        private void PPMCreationMenuButton_Click(object sender, EventArgs e)
+        {
+            EffectTypeSelectionMode();
+            int x = Location.X + 461; // Центрирование по горизонтали
+            int y = Location.Y + 217; // Смещение по вертикали
+            EditorStatic.PPMCreationForm.Location = new Point(x, y);
+            EditorStatic.PPMCreationForm.Show();
+        }
     }
 
 

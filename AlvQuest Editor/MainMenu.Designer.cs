@@ -9,10 +9,6 @@ namespace AlvQuest_Editor
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        private bool isDragging = false;
-        private Point lastCursor;
-        private Point lastForm;
-
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -39,92 +35,6 @@ namespace AlvQuest_Editor
                 _gameEntityListPanel.Size.Width + 2,
                 _gameEntityListPanel.Size.Height + 2);
         }
-        private void MainMenuMouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                isDragging = true;
-                lastCursor = Cursor.Position;
-                lastForm = Location;
-            }
-        }
-        private void MainMenuMouseMove(object sender, MouseEventArgs e)
-        {
-            if (isDragging)
-            {
-                Point currentCursor = Cursor.Position;
-                Location = new Point(lastForm.X + (currentCursor.X - lastCursor.X),
-                                     lastForm.Y + (currentCursor.Y - lastCursor.Y));
-            }
-        }
-        private void MainMenuMouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                isDragging = false;
-            }
-        }
-        private void MainMenuSizeChanging(object sender, EventArgs e)
-        {
-            // Получаем координаты центра кнопки
-            int centerX = this.Location.X + this.Width / 2;
-            int centerY = this.Location.Y + this.Height / 2;
-
-            if (this.Size == new Size(1920, 1080)) // Проверяем текущий размер формы
-            {
-                // Если текущий размер - 1920x1080, меняем на 1280x720
-                this.Size = new Size(1280, 720);
-                this.BackgroundImage = Resources.фон_1_1280_720_Editor;
-                // После изменения размера пересчитываем координаты левого верхнего угла кнопки,
-                // чтобы её центр оставался на том же месте
-                this.Location = new Point(centerX - 1280 / 2, centerY - 720 / 2);
-            }
-            else
-            {
-                // Иначе меняем на 1920x1080
-                this.Size = new Size(1920, 1080);
-                this.BackgroundImage = Resources.фон_1_1920_1080_Editor;
-
-                // После изменения размера пересчитываем координаты левого верхнего угла кнопки,
-                // чтобы её центр оставался на том же месте
-                this.Location = new Point(centerX - 1920 / 2, centerY - 1080 / 2);
-
-                //получаем размеры экрана
-                int ScreenWidth = Screen.PrimaryScreen.Bounds.Width;
-                int ScreenHeight = Screen.PrimaryScreen.Bounds.Height;
-
-                // Получаем координаты левого верхнего угла формы
-                int formLeft = this.Left;
-                int formTop = this.Top;
-
-                // Получаем координаты правого нижнего угла формы
-                int formRight = this.Right;
-                int formBottom = this.Bottom;
-
-                // Проверяем, не выходит ли форма за границы экрана по левому и верхнему краю
-                if (formLeft < 0)
-                {
-                    formLeft = 0; // Если выходит за левую границу, устанавливаем координату X равной 0
-                }
-                else if (formLeft + 1920 > ScreenWidth)
-                {
-                    formLeft = ScreenWidth - 1920; // Если выходит за правую границу, корректируем координату X
-                }
-
-                if (formTop < 0)
-                {
-                    formTop = 0; // Если выходит за верхнюю границу, устанавливаем координату Y равной 0
-                }
-                else if (formTop + 1080 > ScreenHeight)
-                {
-                    formTop = ScreenHeight - 1080; // Если выходит за нижнюю границу, корректируем координату Y
-                }
-
-                // Устанавливаем новое положение формы
-                this.Location = new Point(formLeft, formTop);
-            }
-        }
-
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -134,149 +44,253 @@ namespace AlvQuest_Editor
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainMenu));
-            this.sizeSwitchButton = new System.Windows.Forms.Button();
-            this.UpdateCardButton = new System.Windows.Forms.Button();
-            this._gameEntityListPanel = new System.Windows.Forms.Panel();
-            this._effectListButton = new System.Windows.Forms.Button();
-            this._searchByNameTextBox = new System.Windows.Forms.TextBox();
-            this._characterListButton = new System.Windows.Forms.Button();
-            this._equipmentListButton = new System.Windows.Forms.Button();
-            this._spellListButton = new System.Windows.Forms.Button();
-            this._perkListButton = new System.Windows.Forms.Button();
-            this._searchModeButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            // 
-            // sizeSwitchButton
-            // 
-            this.sizeSwitchButton.Font = new System.Drawing.Font("Century Gothic", 10F);
-            this.sizeSwitchButton.Location = new System.Drawing.Point(1752, 12);
-            this.sizeSwitchButton.Name = "sizeSwitchButton";
-            this.sizeSwitchButton.Size = new System.Drawing.Size(156, 66);
-            this.sizeSwitchButton.TabIndex = 0;
-            this.sizeSwitchButton.Text = "Переключиться на 1280x720";
-            this.sizeSwitchButton.UseVisualStyleBackColor = true;
-            this.sizeSwitchButton.Click += new System.EventHandler(this.MainMenuSizeChanging);
+            UpdateCardButton = new Button();
+            _gameEntityListPanel = new Panel();
+            _effectListButton = new Button();
+            _searchByNameTextBox = new TextBox();
+            _characterListButton = new Button();
+            _equipmentListButton = new Button();
+            _spellListButton = new Button();
+            _perkListButton = new Button();
+            _searchModeButton = new Button();
+            _equipmentCreationModeButon = new Button();
+            _spellCreationModeButon = new Button();
+            _characterCreationModeButon = new Button();
+            _perkCreationModeButon = new Button();
+            _effectsCreationModeButon = new Button();
+            _EntityListLabel = new Label();
+            _effectTypeSelectionPanel = new Panel();
+            button2 = new Button();
+            PPMCreationMenuButton = new Button();
+            _effectTypeSelectionPanel.SuspendLayout();
+            SuspendLayout();
             // 
             // UpdateCardButton
             // 
-            this.UpdateCardButton.Location = new System.Drawing.Point(12, 12);
-            this.UpdateCardButton.Name = "UpdateCardButton";
-            this.UpdateCardButton.Size = new System.Drawing.Size(133, 37);
-            this.UpdateCardButton.TabIndex = 1;
-            this.UpdateCardButton.Text = "UpdateCardButton";
-            this.UpdateCardButton.UseVisualStyleBackColor = true;
-            this.UpdateCardButton.Click += new System.EventHandler(this.UpdateCardButton_Click);
+            UpdateCardButton.Location = new Point(12, 12);
+            UpdateCardButton.Name = "UpdateCardButton";
+            UpdateCardButton.Size = new Size(133, 37);
+            UpdateCardButton.TabIndex = 1;
+            UpdateCardButton.Text = "UpdateCardButton";
+            UpdateCardButton.UseVisualStyleBackColor = true;
+            UpdateCardButton.Click += UpdateCardButton_Click;
             // 
             // _gameEntityListPanel
             // 
-            this._gameEntityListPanel.AutoScroll = true;
-            this._gameEntityListPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(23)))), ((int)(((byte)(24)))));
-            this._gameEntityListPanel.Location = new System.Drawing.Point(12, 218);
-            this._gameEntityListPanel.Name = "_gameEntityListPanel";
-            this._gameEntityListPanel.Size = new System.Drawing.Size(450, 850);
-            this._gameEntityListPanel.TabIndex = 2;
+            _gameEntityListPanel.AutoScroll = true;
+            _gameEntityListPanel.BackColor = Color.FromArgb(25, 23, 24);
+            _gameEntityListPanel.Location = new Point(13, 218);
+            _gameEntityListPanel.Name = "_gameEntityListPanel";
+            _gameEntityListPanel.Size = new Size(448, 850);
+            _gameEntityListPanel.TabIndex = 2;
             // 
             // _effectListButton
             // 
-            this._effectListButton.Font = new System.Drawing.Font("Century Gothic", 14F);
-            this._effectListButton.Location = new System.Drawing.Point(12, 136);
-            this._effectListButton.Name = "_effectListButton";
-            this._effectListButton.Size = new System.Drawing.Size(150, 40);
-            this._effectListButton.TabIndex = 3;
-            this._effectListButton.Text = "Эффекты";
-            this._effectListButton.UseVisualStyleBackColor = false;
-            this._effectListButton.Click += new System.EventHandler(this.EffectListButton_Click);
+            _effectListButton.Font = new Font("Century Gothic", 14F);
+            _effectListButton.Location = new Point(12, 136);
+            _effectListButton.Name = "_effectListButton";
+            _effectListButton.Size = new Size(150, 40);
+            _effectListButton.TabIndex = 3;
+            _effectListButton.Text = "Эффекты";
+            _effectListButton.UseVisualStyleBackColor = false;
+            _effectListButton.Click += EffectListButton_Click;
             // 
             // _searchByNameTextBox
             // 
-            this._searchByNameTextBox.Font = new System.Drawing.Font("Century Gothic", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this._searchByNameTextBox.Location = new System.Drawing.Point(12, 182);
-            this._searchByNameTextBox.Name = "_searchByNameTextBox";
-            this._searchByNameTextBox.Size = new System.Drawing.Size(297, 30);
-            this._searchByNameTextBox.TabIndex = 4;
+            _searchByNameTextBox.Font = new Font("Century Gothic", 14F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            _searchByNameTextBox.Location = new Point(12, 182);
+            _searchByNameTextBox.Name = "_searchByNameTextBox";
+            _searchByNameTextBox.Size = new Size(297, 30);
+            _searchByNameTextBox.TabIndex = 4;
             // 
             // _characterListButton
             // 
-            this._characterListButton.Font = new System.Drawing.Font("Century Gothic", 14F);
-            this._characterListButton.Location = new System.Drawing.Point(312, 136);
-            this._characterListButton.Name = "_characterListButton";
-            this._characterListButton.Size = new System.Drawing.Size(150, 40);
-            this._characterListButton.TabIndex = 5;
-            this._characterListButton.Text = "Персонажи";
-            this._characterListButton.UseVisualStyleBackColor = false;
-            this._characterListButton.Click += new System.EventHandler(this.CharacterListButton_Click);
+            _characterListButton.Font = new Font("Century Gothic", 14F);
+            _characterListButton.Location = new Point(312, 136);
+            _characterListButton.Name = "_characterListButton";
+            _characterListButton.Size = new Size(150, 40);
+            _characterListButton.TabIndex = 5;
+            _characterListButton.Text = "Персонажи";
+            _characterListButton.UseVisualStyleBackColor = false;
+            _characterListButton.Click += CharacterListButton_Click;
             // 
             // _equipmentListButton
             // 
-            this._equipmentListButton.Font = new System.Drawing.Font("Century Gothic", 14F);
-            this._equipmentListButton.Location = new System.Drawing.Point(87, 96);
-            this._equipmentListButton.Name = "_equipmentListButton";
-            this._equipmentListButton.Size = new System.Drawing.Size(150, 40);
-            this._equipmentListButton.TabIndex = 6;
-            this._equipmentListButton.Text = "Снаряжение";
-            this._equipmentListButton.UseVisualStyleBackColor = false;
-            this._equipmentListButton.Click += new System.EventHandler(this.EquipmentListButton_Click);
+            _equipmentListButton.Font = new Font("Century Gothic", 14F);
+            _equipmentListButton.Location = new Point(87, 96);
+            _equipmentListButton.Name = "_equipmentListButton";
+            _equipmentListButton.Size = new Size(150, 40);
+            _equipmentListButton.TabIndex = 6;
+            _equipmentListButton.Text = "Снаряжение";
+            _equipmentListButton.UseVisualStyleBackColor = false;
+            _equipmentListButton.Click += EquipmentListButton_Click;
             // 
             // _spellListButton
             // 
-            this._spellListButton.Font = new System.Drawing.Font("Century Gothic", 14F);
-            this._spellListButton.Location = new System.Drawing.Point(162, 136);
-            this._spellListButton.Name = "_spellListButton";
-            this._spellListButton.Size = new System.Drawing.Size(150, 40);
-            this._spellListButton.TabIndex = 7;
-            this._spellListButton.Text = "Заклинания";
-            this._spellListButton.UseVisualStyleBackColor = false;
-            this._spellListButton.Click += new System.EventHandler(this.SpellListButton_Click);
+            _spellListButton.Font = new Font("Century Gothic", 14F);
+            _spellListButton.Location = new Point(162, 136);
+            _spellListButton.Name = "_spellListButton";
+            _spellListButton.Size = new Size(150, 40);
+            _spellListButton.TabIndex = 7;
+            _spellListButton.Text = "Заклинания";
+            _spellListButton.UseVisualStyleBackColor = false;
+            _spellListButton.Click += SpellListButton_Click;
             // 
             // _perkListButton
             // 
-            this._perkListButton.Font = new System.Drawing.Font("Century Gothic", 14F);
-            this._perkListButton.Location = new System.Drawing.Point(237, 96);
-            this._perkListButton.Name = "_perkListButton";
-            this._perkListButton.Size = new System.Drawing.Size(150, 40);
-            this._perkListButton.TabIndex = 8;
-            this._perkListButton.Text = "Перки";
-            this._perkListButton.UseVisualStyleBackColor = false;
-            this._perkListButton.Click += new System.EventHandler(this.PerkListButton_Click);
+            _perkListButton.Font = new Font("Century Gothic", 14F);
+            _perkListButton.Location = new Point(237, 96);
+            _perkListButton.Name = "_perkListButton";
+            _perkListButton.Size = new Size(150, 40);
+            _perkListButton.TabIndex = 8;
+            _perkListButton.Text = "Перки";
+            _perkListButton.UseVisualStyleBackColor = false;
+            _perkListButton.Click += PerkListButton_Click;
             // 
             // _searchModeButton
             // 
-            this._searchModeButton.Font = new System.Drawing.Font("Century Gothic", 14F);
-            this._searchModeButton.Location = new System.Drawing.Point(315, 182);
-            this._searchModeButton.Name = "_searchModeButton";
-            this._searchModeButton.Size = new System.Drawing.Size(147, 30);
-            this._searchModeButton.TabIndex = 9;
-            this._searchModeButton.Text = "Категория";
-            this._searchModeButton.UseVisualStyleBackColor = false;
-            this._searchModeButton.Click += new System.EventHandler(this.SearchModeButton_Click);
+            _searchModeButton.Font = new Font("Century Gothic", 14F);
+            _searchModeButton.Location = new Point(315, 182);
+            _searchModeButton.Name = "_searchModeButton";
+            _searchModeButton.Size = new Size(147, 30);
+            _searchModeButton.TabIndex = 9;
+            _searchModeButton.Text = "Категория";
+            _searchModeButton.UseVisualStyleBackColor = false;
+            _searchModeButton.Click += SearchModeButton_Click;
+            // 
+            // _equipmentCreationModeButon
+            // 
+            _equipmentCreationModeButon.Font = new Font("Century Gothic", 14F);
+            _equipmentCreationModeButon.Location = new Point(885, 96);
+            _equipmentCreationModeButon.Name = "_equipmentCreationModeButon";
+            _equipmentCreationModeButon.Size = new Size(150, 40);
+            _equipmentCreationModeButon.TabIndex = 10;
+            _equipmentCreationModeButon.Text = "Снаряжение";
+            _equipmentCreationModeButon.UseVisualStyleBackColor = false;
+            // 
+            // _spellCreationModeButon
+            // 
+            _spellCreationModeButon.Font = new Font("Century Gothic", 14F);
+            _spellCreationModeButon.Location = new Point(1041, 96);
+            _spellCreationModeButon.Name = "_spellCreationModeButon";
+            _spellCreationModeButon.Size = new Size(150, 40);
+            _spellCreationModeButon.TabIndex = 11;
+            _spellCreationModeButon.Text = "Снаряжение";
+            _spellCreationModeButon.UseVisualStyleBackColor = false;
+            // 
+            // _characterCreationModeButon
+            // 
+            _characterCreationModeButon.Font = new Font("Century Gothic", 14F);
+            _characterCreationModeButon.Location = new Point(1197, 96);
+            _characterCreationModeButon.Name = "_characterCreationModeButon";
+            _characterCreationModeButon.Size = new Size(150, 40);
+            _characterCreationModeButon.TabIndex = 12;
+            _characterCreationModeButon.Text = "Снаряжение";
+            _characterCreationModeButon.UseVisualStyleBackColor = false;
+            // 
+            // _perkCreationModeButon
+            // 
+            _perkCreationModeButon.Font = new Font("Century Gothic", 14F);
+            _perkCreationModeButon.Location = new Point(729, 96);
+            _perkCreationModeButon.Name = "_perkCreationModeButon";
+            _perkCreationModeButon.Size = new Size(150, 40);
+            _perkCreationModeButon.TabIndex = 13;
+            _perkCreationModeButon.Text = "Перки";
+            _perkCreationModeButon.UseVisualStyleBackColor = false;
+            // 
+            // _effectsCreationModeButon
+            // 
+            _effectsCreationModeButon.Font = new Font("Century Gothic", 14F);
+            _effectsCreationModeButon.Location = new Point(573, 96);
+            _effectsCreationModeButon.Name = "_effectsCreationModeButon";
+            _effectsCreationModeButon.Size = new Size(150, 40);
+            _effectsCreationModeButon.TabIndex = 14;
+            _effectsCreationModeButon.Text = "Эффекты";
+            _effectsCreationModeButon.UseVisualStyleBackColor = false;
+            _effectsCreationModeButon.Click += EffectsCreationModeButon_Click;
+            // 
+            // _EntityListLabel
+            // 
+            _EntityListLabel.AutoSize = true;
+            _EntityListLabel.BackColor = Color.Transparent;
+            _EntityListLabel.Font = new Font("Century Gothic", 18F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            _EntityListLabel.ForeColor = SystemColors.ControlLight;
+            _EntityListLabel.Location = new Point(31, 58);
+            _EntityListLabel.Name = "_EntityListLabel";
+            _EntityListLabel.Size = new Size(419, 30);
+            _EntityListLabel.TabIndex = 15;
+            _EntityListLabel.Text = "Список всех созданных объектов";
+            // 
+            // _effectTypeSelectionPanel
+            // 
+            _effectTypeSelectionPanel.AutoScroll = true;
+            _effectTypeSelectionPanel.BackColor = Color.FromArgb(25, 23, 24);
+            _effectTypeSelectionPanel.Controls.Add(button2);
+            _effectTypeSelectionPanel.Controls.Add(PPMCreationMenuButton);
+            _effectTypeSelectionPanel.Location = new Point(523, 136);
+            _effectTypeSelectionPanel.Name = "_effectTypeSelectionPanel";
+            _effectTypeSelectionPanel.Size = new Size(250, 94);
+            _effectTypeSelectionPanel.TabIndex = 3;
+            _effectTypeSelectionPanel.Visible = false;
+            _effectTypeSelectionPanel.MouseLeave += EffectTypeSelectionPane_MouseLeave;
+            // 
+            // button2
+            // 
+            button2.BackColor = SystemColors.Control;
+            button2.Font = new Font("Century Gothic", 12F);
+            button2.Location = new Point(3, 49);
+            button2.Name = "button2";
+            button2.Size = new Size(244, 40);
+            button2.TabIndex = 17;
+            button2.Text = "TriggerParameterModifier";
+            button2.UseVisualStyleBackColor = false;
+            // 
+            // PPMCreationMenuButton
+            // 
+            PPMCreationMenuButton.BackColor = SystemColors.Control;
+            PPMCreationMenuButton.Font = new Font("Century Gothic", 12F);
+            PPMCreationMenuButton.Location = new Point(3, 3);
+            PPMCreationMenuButton.Name = "PPMCreationMenuButton";
+            PPMCreationMenuButton.Size = new Size(244, 40);
+            PPMCreationMenuButton.TabIndex = 16;
+            PPMCreationMenuButton.Text = "PassiveParameterModifier";
+            PPMCreationMenuButton.UseVisualStyleBackColor = false;
+            PPMCreationMenuButton.Click += PPMCreationMenuButton_Click;
             // 
             // MainMenu
-            //
-            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.ClientSize = new System.Drawing.Size(1920, 1080);
-            this.Controls.Add(this._searchModeButton);
-            this.Controls.Add(this._perkListButton);
-            this.Controls.Add(this._spellListButton);
-            this.Controls.Add(this._equipmentListButton);
-            this.Controls.Add(this._characterListButton);
-            this.Controls.Add(this._searchByNameTextBox);
-            this.Controls.Add(this._effectListButton);
-            this.Controls.Add(this._gameEntityListPanel);
-            this.Controls.Add(this.UpdateCardButton);
-            this.Controls.Add(this.sizeSwitchButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "MainMenu";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "AlvQuest Editor";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            // 
+            BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
+            ClientSize = new Size(1920, 1080);
+            Controls.Add(_effectTypeSelectionPanel);
+            Controls.Add(_EntityListLabel);
+            Controls.Add(_effectsCreationModeButon);
+            Controls.Add(_perkCreationModeButon);
+            Controls.Add(_characterCreationModeButon);
+            Controls.Add(_spellCreationModeButon);
+            Controls.Add(_equipmentCreationModeButon);
+            Controls.Add(_searchModeButton);
+            Controls.Add(_perkListButton);
+            Controls.Add(_spellListButton);
+            Controls.Add(_equipmentListButton);
+            Controls.Add(_characterListButton);
+            Controls.Add(_searchByNameTextBox);
+            Controls.Add(_effectListButton);
+            Controls.Add(_gameEntityListPanel);
+            Controls.Add(UpdateCardButton);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            KeyPreview = true;
+            Name = "MainMenu";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "AlvQuest Editor";
+            FormClosing += EditorJSONDataSave;
+            Load += EditorJSONDataLoad;
+            KeyDown += MainMenu_KeyDown_Esc;
+            _effectTypeSelectionPanel.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
-
-        private Button sizeSwitchButton;
         private Button UpdateCardButton;
         private Panel _gameEntityListPanel;
         private Button _effectListButton;
@@ -286,5 +300,14 @@ namespace AlvQuest_Editor
         private Button _spellListButton;
         private Button _perkListButton;
         private Button _searchModeButton;
+        private Button _equipmentCreationModeButon;
+        private Button _spellCreationModeButon;
+        private Button _characterCreationModeButon;
+        private Button _perkCreationModeButon;
+        private Button _effectsCreationModeButon;
+        private Label _EntityListLabel;
+        private Panel _effectTypeSelectionPanel;
+        private Button PPMCreationMenuButton;
+        private Button button2;
     }
 }

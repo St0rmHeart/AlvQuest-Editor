@@ -344,7 +344,7 @@ namespace AlvQuest_Editor
                .With_Characteristic(ECharacteristic.Earth, 0)
                .Build();
         }
-
+        public static readonly int HASH_CONST = 16769023;
         public static readonly Dictionary<ECharacteristic, Dictionary<EDerivative, List<ECharacteristic>>> DERIVATIVE_SUBSCRIPTIONS;
         public static readonly Dictionary<ECharacteristic, List<EDerivative>> CHAR_DER_PAIRS;
         public static readonly Character TEMPLATE_CHARACTER;
@@ -352,6 +352,28 @@ namespace AlvQuest_Editor
         public static double Round(this double value)
         {
             return Math.Round(value, ACCURACY_OF_CALCULATIONS);
+        }
+        public static int GetHashCode(List<Dictionary<string, string>> data)
+        {
+            int hashCode = HASH_CONST;
+            foreach (var dict in data.OrderBy(d => string.Join(",", d.Keys.OrderBy(k => k))))
+            {
+                foreach (var kvp in dict.OrderBy(x => x.Key))
+                {
+                    hashCode ^= kvp.Key.GetHashCode();
+                    hashCode ^= kvp.Value.GetHashCode();
+                }
+            }
+            return hashCode;
+        }
+        public static int GetHashCode(List<double> data)
+        {
+            int hashCode = HASH_CONST;
+            foreach (var item in data.OrderBy(x => x))
+            {
+                hashCode ^= item.GetHashCode();
+            }
+            return hashCode;
         }
         public static class DTOConverter
         {
@@ -363,21 +385,22 @@ namespace AlvQuest_Editor
                     { "EEvent", link.type.ToString() }
                 };
             }
-            public static Dictionary<string, string> ToDTOImpactLink((EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable) link)
+            public static Dictionary<string, string> ToDTOImpactLink((EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value) link)
             {
                 return new Dictionary<string, string>()
                 {
-                    { "EPlayerType", link.target.ToString() },
-                    { "ECharacteristic", link.characteristic.ToString() },
-                    { "EDerivative", link.derivative.ToString() },
-                    { "EVariable", link.variable.ToString() }
+                    { "Target", link.target.ToString() },
+                    { "Characteristic", link.characteristic.ToString() },
+                    { "Derivative", link.derivative.ToString() },
+                    { "Variable", link.variable.ToString() },
+                    { "Value", link.value.ToString() }
                 };
             }
             public static List<Dictionary<string, string>> ToDTOEventLinkList(List<(EPlayerType target, EEvent type)> links)
             {
                 return links.Select(ToDTOEventLink).ToList();
             }
-            public static List<Dictionary<string, string>> ToDTOImpactLinkList(List<(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable)> links)
+            public static List<Dictionary<string, string>> ToDTOImpactLinkList(List<(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value)> links)
             {
                 return links.Select(ToDTOImpactLink).ToList();
             }
@@ -403,21 +426,23 @@ namespace AlvQuest_Editor
                     throw new ArgumentException("Отсутствуют необходимые ключи в словаре");
                 }
             }
-            public static (EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable) FromDTOImpactLink(Dictionary<string, string> link)
+            public static (EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value) FromDTOImpactLink(Dictionary<string, string> link)
             {
                 // Парсим строки из словаря обратно в нужные типы
-                if (link.TryGetValue("EPlayerType", out string playerTypeStr) &&
-                    link.TryGetValue("ECharacteristic", out string characteristicStr) &&
-                    link.TryGetValue("EDerivative", out string derivativeStr) &&
-                    link.TryGetValue("EVariable", out string variableStr))
+                if (link.TryGetValue("Target", out string playerTypeStr) &&
+                    link.TryGetValue("Characteristic", out string characteristicStr) &&
+                    link.TryGetValue("Derivative", out string derivativeStr) &&
+                    link.TryGetValue("Variable", out string variableStr) &&
+                    link.TryGetValue("Value", out string valueStr))
                 {
                     // Преобразуем строки в соответствующие перечисления
                     if (Enum.TryParse<EPlayerType>(playerTypeStr, out var playerType) &&
                         Enum.TryParse<ECharacteristic>(characteristicStr, out var characteristic) &&
                         Enum.TryParse<EDerivative>(derivativeStr, out var derivative) &&
-                        Enum.TryParse<EVariable>(variableStr, out var variable))
+                        Enum.TryParse<EVariable>(variableStr, out var variable) &&
+                        double.TryParse(valueStr, out var value))
                     {
-                        return (playerType, characteristic, derivative, variable);
+                        return (playerType, characteristic, derivative, variable, value);
                     }
                     else
                     {
@@ -433,7 +458,7 @@ namespace AlvQuest_Editor
             {
                 return links.Select(FromDTOEventLink).ToList();
             }
-            public static List<(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable)> FromDTOImpactLinkList(List<Dictionary<string, string>> links)
+            public static List<(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value)> FromDTOImpactLinkList(List<Dictionary<string, string>> links)
             {
                 return links.Select(FromDTOImpactLink).ToList();
             }
@@ -442,21 +467,21 @@ namespace AlvQuest_Editor
             
             
 
-            public static PPM_DTO ConvertPPMtoDTO(PassiveParameterModifier ppm)
+            public static PassiveParameterModifier.PPM_DTO ConvertPPMtoDTO(PassiveParameterModifier ppm)
             {
                 return ppm.GetDTO();
             }
-            public static PassiveParameterModifier ConvertDTOtoPPM(PPM_DTO dto)
+            public static PassiveParameterModifier ConvertDTOtoPPM(PassiveParameterModifier.PPM_DTO dto)
             {
-                return new PassiveParameterModifier.PPM_Builder().InstallDTO(dto).Build();
+                return new PassiveParameterModifier.PPM_Builder().InstallDTO(dto).BuildEntity();
             }
-            public static TPM_DTO ConvertTPMtoDTO(TriggerParameterModifier tpm)
+            public static TriggerParameterModifier.TPM_DTO ConvertTPMtoDTO(TriggerParameterModifier tpm)
             {
                 return tpm.GetDTO();
             }
-            public static TriggerParameterModifier ConvertDTOtoTPM(TPM_DTO dto)
+            public static TriggerParameterModifier ConvertDTOtoTPM(TriggerParameterModifier.TPM_DTO dto)
             {
-                return new TriggerParameterModifier.TPM_Builder().InstallDTO(dto).Build();
+                return new TriggerParameterModifier.TPM_Builder().InstallDTO(dto).BuildEntity();
             }
             public static LogicalModuleEffect.LME_DTO ConvertLMEtoDTO(LogicalModuleEffect lme)
             {
@@ -467,5 +492,18 @@ namespace AlvQuest_Editor
                 return new LogicalModuleEffect.LMEBuilder().InstallDTO(dto).Build();
             }
         }
-    }   
+    }
+    /// <summary>
+    /// Общие поля всех игровых сущностей  
+    /// </summary>
+    public class BaseData
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string IconName { get; set; }
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, Description, IconName);
+        }
+    }
 }

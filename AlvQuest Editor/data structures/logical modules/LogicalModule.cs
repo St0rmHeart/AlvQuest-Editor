@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
+﻿using System.Text.Json.Serialization;
 
 namespace AlvQuest_Editor
 {
@@ -24,6 +18,11 @@ namespace AlvQuest_Editor
         {
             _owner = owner;
             _enemy = enemy;
+        }
+        public void Uninstallation()
+        {
+            _owner = null;
+            _enemy = null;
         }
         public void SetData(EEvent arg)
         {
@@ -62,16 +61,15 @@ namespace AlvQuest_Editor
     /// </summary>
     public class LM_CONSTANT_TRUE : LogicalModule
     {
-        public override LogicalModule Clone()
-        {
-            return new LM_CONSTANT_TRUE();
-        }
-
         public override bool Result()
         {
             return true;
         }
-        public override LogicalModule_DTO GetDTO()
+        public override LogicalModule Clone()
+        {
+            return new LM_CONSTANT_TRUE();
+        }
+        public override LM_CONSTANT_TRUE_DTO GetDTO()
         {
             return new LM_CONSTANT_TRUE_DTO();
         }

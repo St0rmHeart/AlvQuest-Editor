@@ -1,26 +1,14 @@
 ﻿namespace AlvQuest_Editor
 {
-    public class TPM_DTO : BaseEffect_DTO
-    {
-        public LogicalModule_DTO TriggerLogicalModule_DTO { get; set; }
-        public LogicalModule_DTO TickLogicalModule_DTO { get; set; }
-        public int Duration { get; set; }
-        public int MaxStack { get; set; }
-        public List<double> Values { get; set; } = [];
-        public List<Dictionary<string, string>> TriggerEvents { get; set; } = [];
-        public List<Dictionary<string, string>> TickEvents { get; set; } = [];
-        public List<Dictionary<string, string>> Links { get; set; } = [];
-    }
     public class TriggerParameterModifier : BaseEffect
     {
         private readonly LogicalModule _triggerlogicalModule;
         private readonly LogicalModule _ticklogicalModule;
         private readonly int _duration;
         private readonly int _maxStack;
-        private readonly List<double> _values;
         private readonly List<(EPlayerType target, EEvent type)> _triggerEvents;
         private readonly List<(EPlayerType target, EEvent type)> _tickEvents;
-        private readonly List<(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable)> _links;
+        private readonly List<(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value)> _links;
         private readonly List<Parameter> _parameters = [];
         private bool _isActive;
         private int _counterTick;
@@ -33,8 +21,7 @@
             LogicalModule ticklogicalModule,
             int duration,
             int maxStack,
-            List<double> values,
-            List<(EPlayerType, ECharacteristic, EDerivative, EVariable)> links,
+            List<(EPlayerType, ECharacteristic, EDerivative, EVariable, double)> links,
             List<(EPlayerType, EEvent)> triggerEvents,
             List<(EPlayerType, EEvent)> tickEvents) : base(name, description, iconName)
         {
@@ -42,7 +29,6 @@
             _ticklogicalModule = ticklogicalModule;
             _duration = duration;
             _maxStack = maxStack;
-            _values = values;
             _links = links;
             _triggerEvents = triggerEvents;
             _tickEvents = tickEvents;
@@ -68,6 +54,12 @@
             }
             _triggerlogicalModule.Installation(owner, enemy);
             _ticklogicalModule.Installation(owner, enemy);
+        }
+        public override void Uninstallation()
+        {
+            _parameters.Clear();
+            _triggerlogicalModule.Uninstallation();
+            _ticklogicalModule.Uninstallation();
         }
         #region Реализация функционала потомка
         private void SubscribeTrigger(CharacterSlot owner, CharacterSlot enemy, (EPlayerType target, EEvent type) triggerEvent)
@@ -119,9 +111,9 @@
                 for (int i = 0; i < _parameters.Count; i++)
                 {
                     if (_parameters[i] is CurrentCommonParameter parameter)
-                        parameter.CurrentValue += _values[i];
+                        parameter.CurrentValue += _links[i].value;
                     else
-                        _parameters[i].ChangeVariable(_links[i].variable, _values[i]);
+                        _parameters[i].ChangeVariable(_links[i].variable, _links[i].value);
                 }
                 _counterStack++;
             }
@@ -151,7 +143,7 @@
             {
                 for (int i = 0; i < _parameters.Count; i++)
                 {
-                    _parameters[i].ChangeVariable(_links[i].variable, - (_values[i]) * _counterStack);
+                    _parameters[i].ChangeVariable(_links[i].variable, - (_links[i].value) * _counterStack);
                 }
                 _isActive = false;
                 _counterStack = 0;
@@ -178,7 +170,6 @@
             var dto = new TPM_DTO
             {
                 BaseData = GetBaseData(),
-                Values = new List<double>(_values),
                 TriggerLogicalModule_DTO = _triggerlogicalModule.GetDTO(),
                 TickLogicalModule_DTO = _ticklogicalModule.GetDTO(),
                 Duration = _duration,
@@ -199,102 +190,119 @@
                 ticklogicalModule: _ticklogicalModule.Clone(),
                 duration: _duration,
                 maxStack: _maxStack,
-                values: new List<double>(_values),
-                links: new List<(EPlayerType, ECharacteristic, EDerivative, EVariable)>(_links),
+                links: new List<(EPlayerType, ECharacteristic, EDerivative, EVariable, double)>(_links),
                 triggerEvents: new List<(EPlayerType, EEvent)>(_triggerEvents),
                 tickEvents: new List<(EPlayerType, EEvent)>(_tickEvents));
         }
-        
 
-        public class TPM_Builder : BaseEffect_Builder<TPM_Builder, TriggerParameterModifier, TPM_DTO>
+        public class TPM_DTO : BaseEffectDTO
         {
-            public TPM_Builder TriggerlogicalModule(LogicalModule value)
+            public LogicalModule_DTO TriggerLogicalModule_DTO { get; set; }
+            public LogicalModule_DTO TickLogicalModule_DTO { get; set; }
+            public int Duration { get; set; }
+            public int MaxStack { get; set; }
+            public List<Dictionary<string, string>> TriggerEvents { get; set; } = [];
+            public List<Dictionary<string, string>> TickEvents { get; set; } = [];
+            public List<Dictionary<string, string>> Links { get; set; } = [];
+            public override int GetHashCode()
             {
-                _effectData.TriggerLogicalModule_DTO = value.GetDTO();
-                return this;
-            }
-            public TPM_Builder TicklogicalModule(LogicalModule value)
-            {
-                _effectData.TickLogicalModule_DTO = value.GetDTO();
-                return this;
-            }
-            public TPM_Builder Duration(int value)
-            {
-                _effectData.Duration = value;
-                return this;
-            }
-            public TPM_Builder MaxStack(int value)
-            {
-                _effectData.MaxStack = value;
-                return this;
-            }
-            public TPM_Builder AddValue(double value)
-            {
-                _effectData.Values.Add(value);
-                return this;
-            }
-            public TPM_Builder AddLink(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable)
-            {
-                if (target == EPlayerType.None || characteristic == ECharacteristic.None || derivative == EDerivative.None || variable == EVariable.None)
+                unchecked
                 {
-                    throw new ArgumentException("Значение None недопустимо");
+                    int hashCode = base.GetHashCode();
+                    hashCode ^= TriggerLogicalModule_DTO.GetHashCode();
+                    hashCode ^= TickLogicalModule_DTO.GetHashCode();
+                    hashCode ^= Duration.GetHashCode();
+                    hashCode ^= MaxStack.GetHashCode();
+                    hashCode ^= AlvQuestStatic.GetHashCode(TriggerEvents);
+                    hashCode ^= AlvQuestStatic.GetHashCode(TickEvents);
+                    hashCode ^= AlvQuestStatic.GetHashCode(Links);
+                    return hashCode;
+                }
+            }
+            public override TriggerParameterModifier RecreateOriginal()
+            {
+                return new TriggerParameterModifier(
+                    name: BaseData.Name,
+                    description: BaseData.Description,
+                    iconName: BaseData.IconName,
+                    triggerlogicalModule: TriggerLogicalModule_DTO.RecreateLogicalModule(),
+                    ticklogicalModule: TickLogicalModule_DTO.RecreateLogicalModule(),
+                    duration: Duration,
+                    maxStack: MaxStack,
+                    links: AlvQuestStatic.DTOConverter.FromDTOImpactLinkList(Links),
+                    triggerEvents: AlvQuestStatic.DTOConverter.FromDTOEventLinkList(TriggerEvents),
+                    tickEvents: AlvQuestStatic.DTOConverter.FromDTOEventLinkList(TickEvents));
+            }
+        }
+
+        public class TPM_Builder : BaseBuilder<TPM_Builder, TriggerParameterModifier, TPM_DTO>
+        {
+            public TPM_Builder SetTriggerlogicalModule(LogicalModule value)
+            {
+                _entityData.TriggerLogicalModule_DTO = value.GetDTO();
+                return this;
+            }
+            public TPM_Builder SetTicklogicalModule(LogicalModule value)
+            {
+                _entityData.TickLogicalModule_DTO = value.GetDTO();
+                return this;
+            }
+            public TPM_Builder SetDuration(int value)
+            {
+                _entityData.Duration = value;
+                return this;
+            }
+            public TPM_Builder SetMaxStack(int value)
+            {
+                _entityData.MaxStack = value;
+                return this;
+            }
+            public TPM_Builder SetLink(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value)
+            {
+                if (target == EPlayerType.None || characteristic == ECharacteristic.None || derivative == EDerivative.None || variable == EVariable.None || value == 0)
+                {
+                    throw new ArgumentException("Ссылка некорректно заполнена");
                 }
                 if (!AlvQuestStatic.CHAR_DER_PAIRS[characteristic].Contains(derivative))
                 {
                     throw new ArgumentException("Невозможная ссылка. У " + nameof(characteristic) + " нет производной " + nameof(derivative) + ".");
                 }
-                var newLink = (target, characteristic, derivative, variable);
+                var newLink = (target, characteristic, derivative, variable, value);
                 var newDTOLink = AlvQuestStatic.DTOConverter.ToDTOImpactLink(newLink);
-                bool dictionaryExists = _effectData.Links.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
+                bool dictionaryExists = _entityData.Links.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
                 if (dictionaryExists) throw new ArgumentException("Указанная ссылка уже существует.");
-                _effectData.Links.Add(newDTOLink);
+                _entityData.Links.Add(newDTOLink);
                 return this;
             }
-            public TPM_Builder AddTriggerEvent(EPlayerType target, EEvent triggerEvent)
+            public TPM_Builder SetTriggerEvent(EPlayerType target, EEvent triggerEvent)
             {
                 if (target == EPlayerType.None || triggerEvent == EEvent.None) throw new ArgumentException("Значение None недопустимо");
                 var newLink = (target, triggerEvent);
                 var newDTOLink = AlvQuestStatic.DTOConverter.ToDTOEventLink(newLink);
-                bool dictionaryExists = _effectData.TriggerEvents.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
+                bool dictionaryExists = _entityData.TriggerEvents.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
                 if (dictionaryExists) throw new ArgumentException("Указанная ссылка уже существует.");
-                _effectData.TriggerEvents.Add(newDTOLink);
+                _entityData.TriggerEvents.Add(newDTOLink);
                 return this;
             }
-            public TPM_Builder AddTickEventt(EPlayerType target, EEvent tickEvent)
+            public TPM_Builder SetTickEventt(EPlayerType target, EEvent tickEvent)
             {
                 if (target == EPlayerType.None || tickEvent == EEvent.None) throw new ArgumentException("Значение None недопустимо");
                 var newLink = (target, tickEvent);
                 var newDTOLink = AlvQuestStatic.DTOConverter.ToDTOEventLink(newLink);
-                bool dictionaryExists = _effectData.TickEvents.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
+                bool dictionaryExists = _entityData.TickEvents.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
                 if (dictionaryExists) throw new ArgumentException("Указанная ссылка уже существует.");
-                _effectData.TickEvents.Add(newDTOLink);
+                _entityData.TickEvents.Add(newDTOLink);
                 return this;
             }
             protected override void ValidateAdditionalContent()
             {
-                if (_effectData.TriggerLogicalModule_DTO == null) throw new ArgumentException("Не указан логический модуль триггера");
-                if (_effectData.TickLogicalModule_DTO == null) throw new ArgumentException("Не указан логический модуль тика");
-                if (_effectData.Duration == 0) throw new ArgumentException("Не указана длительность");
-                if (_effectData.MaxStack == 0) throw new ArgumentException("Не указан максимальный стак");
-                if (_effectData.Values?.Count == 0) throw new ArgumentException("Не указано значение");
-                if (_effectData.Links?.Count == 0) throw new ArgumentException("Не указана ссылка");
-                if (_effectData.TriggerEvents?.Count == 0) throw new ArgumentException("Не указан ивент-триггер");
-                if (_effectData.TickEvents?.Count == 0) throw new ArgumentException("Не указан ивент-тик");
-            }
-            protected override TriggerParameterModifier Construct()
-            {
-                return new TriggerParameterModifier(
-                    name: _effectData.BaseData.Name,
-                    description: _effectData.BaseData.Description,
-                    iconName: _effectData.BaseData.IconName,
-                    triggerlogicalModule: _effectData.TriggerLogicalModule_DTO.RecreateLogicalModule(),
-                    ticklogicalModule: _effectData.TickLogicalModule_DTO.RecreateLogicalModule(),
-                    duration: _effectData.Duration,
-                    maxStack: _effectData.MaxStack,
-                    values: new List<double>(_effectData.Values),
-                    links: AlvQuestStatic.DTOConverter.FromDTOImpactLinkList(_effectData.Links),
-                    triggerEvents: AlvQuestStatic.DTOConverter.FromDTOEventLinkList(_effectData.TriggerEvents),
-                    tickEvents: AlvQuestStatic.DTOConverter.FromDTOEventLinkList(_effectData.TickEvents));
+                if (_entityData.TriggerLogicalModule_DTO == null) throw new ArgumentException("Не указан логический модуль триггера");
+                if (_entityData.TickLogicalModule_DTO == null) throw new ArgumentException("Не указан логический модуль тика");
+                if (_entityData.Duration == 0) throw new ArgumentException("Не указана длительность");
+                if (_entityData.MaxStack == 0) throw new ArgumentException("Не указан максимальный стак");
+                if (_entityData.Links?.Count == 0) throw new ArgumentException("Не указана ссылка");
+                if (_entityData.TriggerEvents?.Count == 0) throw new ArgumentException("Не указан ивент-триггер");
+                if (_entityData.TickEvents?.Count == 0) throw new ArgumentException("Не указан ивент-тик");
             }
         }
     }
