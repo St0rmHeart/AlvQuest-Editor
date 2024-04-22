@@ -20,10 +20,6 @@ namespace AlvQuest_Editor
         {
             KeyDown += MainMenu_KeyDown_Esc;
             InitializeComponent();
-            for (int i = 1; i < 101; i++)
-            {
-                label1.Text += $"\n{i}";
-            }
         }
 
         /*private void SearchByName(object sender, EventArgs e)
@@ -69,6 +65,12 @@ namespace AlvQuest_Editor
         }
         private void EffectListButton_Click(object sender, EventArgs e)
         {
+            _gameEntityListPanel.Controls.Clear();
+            foreach (var item in EditorStatic.PPMPanelsList)
+            {
+                item.Location = new Point(0, item.Height * item.Index);
+                _gameEntityListPanel.Controls.Add(item);
+            }
             UpdateButtons(sender as Button);
         }
         private void EquipmentListButton_Click(object sender, EventArgs e)

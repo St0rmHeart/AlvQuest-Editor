@@ -2,6 +2,8 @@
 {
     public partial class PPMCreationForm : BaseEditorForm
     {
+        private bool _isNewPPM = true;
+        private PPMPanel _panel;
         public PassiveParameterModifier.PPM_DTO EditableEffect { get; set; } = new();
         private readonly List<ImpactLinkPanel> ImpactLinkPanelsList = [];
         private string _iconFile;
@@ -47,7 +49,7 @@
         #endregion
         private void AddNewImpactLinkPanel()
         {
-            
+
             var impactLinkPanel = new ImpactLinkPanel();
             impactLinkPanel.LinkDeletionButton.Click += DeleteImpactLinkPanel;
             impactLinkPanel.ModificationValueTextBox.TextChanged += ValidateContent;
@@ -73,7 +75,7 @@
                 var currentImpactLinkPanel = ImpactLinkPanelsList[i];
                 currentImpactLinkPanel.Index = i;
                 currentImpactLinkPanel.Location = new Point(0, 36 * i);
-                
+
                 //_impactPanelListPanel.Controls.Add(currentImpactLinkPanel);
             }
             _impactPanelListPanel.Invalidate();
@@ -104,16 +106,31 @@
             {
                 _errorListBox.Items.Add("Отсутствует ссылка эффекта.");
             }
-            else if (ImpactLinkPanelsList.Any(x => !double.TryParse(x.ModificationValueTextBox.Text, out _ )))
+            else if (ImpactLinkPanelsList.Any(x => !double.TryParse(x.ModificationValueTextBox.Text, out _)))
             {
                 _errorListBox.Items.Add("Некорректно задана ссылка эффекта.");
             }
             _createEffectButton.Enabled = _errorListBox.Items.Count == 0;
             PerformLayout();
         }
-        public void SavePPM()
+        private void SavePPM(object sender, EventArgs e)
         {
+            PassiveParameterModifier.PPM_DTO dto = new();
+            dto.BaseData.Name = _nameTextBox.Text;
+            dto.BaseData.Description = _decriptionRichTextBox.Text;
+            dto.BaseData.Icon = _iconFile;
+            dto.Links = ImpactLinkPanelsList.Select(x => x.GetImpactLinkDTO()).ToList();
+            if (_isNewPPM)
+            {
+                var ppmp = new PPMPanel(dto);
+                ppmp.Index = EditorStatic.PPMPanelsList.Count;
+                EditorStatic.PPMPanelsList.Add(ppmp);
+            }
+            else
+            {
 
+            }
+            Visible = false;
         }
     }
 }

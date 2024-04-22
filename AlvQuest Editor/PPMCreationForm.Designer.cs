@@ -195,7 +195,7 @@
             _iconPictureBox.TabStop = false;
             _iconPictureBox.Click += OpenIconSelectionForm;
             // 
-            // _errorLlistBox
+            // _errorListBox
             // 
             _errorListBox.BackColor = Color.FromArgb(25, 23, 24);
             _errorListBox.BorderStyle = BorderStyle.None;
@@ -204,7 +204,7 @@
             _errorListBox.FormattingEnabled = true;
             _errorListBox.ItemHeight = 22;
             _errorListBox.Location = new Point(313, 275);
-            _errorListBox.Name = "_errorLlistBox";
+            _errorListBox.Name = "_errorListBox";
             _errorListBox.Size = new Size(616, 154);
             _errorListBox.TabIndex = 36;
             // 
@@ -213,12 +213,13 @@
             _createEffectButton.BackColor = SystemColors.Control;
             _createEffectButton.Enabled = false;
             _createEffectButton.Font = new Font("Century Gothic", 14F);
-            _createEffectButton.Location = new Point(779, 6);
+            _createEffectButton.Location = new Point(765, 6);
             _createEffectButton.Name = "_createEffectButton";
-            _createEffectButton.Size = new Size(150, 30);
+            _createEffectButton.Size = new Size(164, 30);
             _createEffectButton.TabIndex = 37;
-            _createEffectButton.Text = "Создать PPM";
+            _createEffectButton.Text = "Сохранить PPM";
             _createEffectButton.UseVisualStyleBackColor = false;
+            _createEffectButton.Click += SavePPM;
             // 
             // PPMCreationForm
             // 

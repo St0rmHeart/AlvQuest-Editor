@@ -10,7 +10,22 @@
         public Button AddEntityToCharacterButton { get; } = new();
         public Button EditEntityButton { get; } = new();
         public int Index { get; set; }
-        public TDTO DTO { get; set; }
+
+        private TDTO _dto;
+        public TDTO DTO
+        {
+            get
+            {
+                return _dto;
+            }
+            set
+            {
+                _dto = value;
+                EntityName.Text = value.BaseData.Name;
+                EntityDescription.Text = value.BaseData.Description;
+                EntityIcon.Image = Image.FromFile(value.BaseData.Icon);
+            }
+        }
 
 
 
@@ -40,7 +55,7 @@
             EntityName.ForeColor = SystemColors.AppWorkspace;
             EntityName.Location = new Point(69, 6);
             EntityName.Size = new Size(323, 25);
-            EntityName.Text = dto.BaseData.Name;
+            
             // 
             // EntityDescription
             // 
@@ -48,7 +63,7 @@
             EntityDescription.ForeColor = SystemColors.AppWorkspace;
             EntityDescription.Location = new Point(3, 69);
             EntityDescription.Size = new Size(424, 75);
-            EntityDescription.Text = dto.BaseData.Description;
+            
             // 
             // EntityIcon
             // 
@@ -56,7 +71,7 @@
             EntityIcon.Name = "EntityIcon";
             EntityIcon.Size = new Size(63, 63);
             EntityIcon.SizeMode = PictureBoxSizeMode.StretchImage;
-            EntityIcon.Image = Image.FromFile(dto.BaseData.Icon);
+            
             // 
             // AddEntityToCharacterButton
             // 

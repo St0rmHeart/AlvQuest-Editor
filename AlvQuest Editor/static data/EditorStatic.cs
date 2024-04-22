@@ -8,7 +8,7 @@ namespace AlvQuest_Editor
         public static string FilePathPPM { get; } = "json data/effectsPPM.json";
         public static string FilePathTPM { get; } = "json data/effectsTPM.json";
         public static Arena Arena { get; set; }
-        public static List<PPMPanel> PPManelsList { get; } = [];
+        public static List<PPMPanel> PPMPanelsList { get; } = [];
         public static MainMenu MainMenu { get; } = new();
         public static CharacterCard CharacterCard { get; } = new();
         public static PPMCreationForm PPMCreationForm { get; } = new();

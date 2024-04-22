@@ -47,7 +47,6 @@ namespace AlvQuest_Editor
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainMenu));
             UpdateCardButton = new Button();
             _gameEntityListPanel = new Panel();
-            label1 = new Label();
             _effectListButton = new Button();
             _searchByNameTextBox = new TextBox();
             _characterListButton = new Button();
@@ -64,7 +63,6 @@ namespace AlvQuest_Editor
             _effectTypeSelectionPanel = new Panel();
             button2 = new Button();
             PPMCreationMenuButton = new Button();
-            _gameEntityListPanel.SuspendLayout();
             _effectTypeSelectionPanel.SuspendLayout();
             SuspendLayout();
             // 
@@ -82,23 +80,10 @@ namespace AlvQuest_Editor
             // 
             _gameEntityListPanel.AutoScroll = true;
             _gameEntityListPanel.BackColor = Color.FromArgb(25, 23, 24);
-            _gameEntityListPanel.Controls.Add(label1);
             _gameEntityListPanel.Location = new Point(13, 218);
             _gameEntityListPanel.Name = "_gameEntityListPanel";
             _gameEntityListPanel.Size = new Size(448, 850);
             _gameEntityListPanel.TabIndex = 2;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Font = new Font("VCROSDMonoRUSbyD", 48F, FontStyle.Bold, GraphicsUnit.Point, 204);
-            label1.ForeColor = SystemColors.Control;
-            label1.Location = new Point(3, 15);
-            label1.Name = "label1";
-            label1.Size = new Size(419, 64);
-            label1.TabIndex = 1;
-            label1.Text = "Test 100";
-            label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // _effectListButton
             // 
@@ -299,8 +284,6 @@ namespace AlvQuest_Editor
             StartPosition = FormStartPosition.CenterScreen;
             Text = "AlvQuest Editor";
             KeyDown += MainMenu_KeyDown_Esc;
-            _gameEntityListPanel.ResumeLayout(false);
-            _gameEntityListPanel.PerformLayout();
             _effectTypeSelectionPanel.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -325,6 +308,5 @@ namespace AlvQuest_Editor
         private Panel _effectTypeSelectionPanel;
         private Button PPMCreationMenuButton;
         private Button button2;
-        private Label label1;
     }
 }
