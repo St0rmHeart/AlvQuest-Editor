@@ -71,7 +71,7 @@ namespace AlvQuest_Editor
                 return new PassiveParameterModifier(
                         name: BaseData.Name,
                         description: BaseData.Description,
-                        iconName: BaseData.IconName,
+                        iconName: BaseData.Icon,
                         links: AlvQuestStatic.DTOConverter.FromDTOImpactLinkList(Links));
             }
         }

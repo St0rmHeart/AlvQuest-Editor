@@ -1,61 +1,115 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace AlvQuest_Editor
+﻿namespace AlvQuest_Editor
 {
-    public class GameEntityPanel : Panel
+    public abstract class GameEntityPanel<TDTO> : Panel
+        where TDTO : BaseDTO
     {
-        public PictureBox Icon { get; set; }
-        public Label EffectName { get; set; }
-        protected GameEntityPanel()
+        public Label EntityName { get; } = new();
+        public Label EntityDescription { get; } = new();
+        public PictureBox EntityIcon { get; } = new();
+        public Button DeleteEntityButton { get; } = new();
+        public Button AddEntityToCharacterButton { get; } = new();
+        public Button EditEntityButton { get; } = new();
+        public int Index { get; set; }
+        public TDTO DTO { get; set; }
+
+
+
+        protected GameEntityPanel(TDTO dto)
         {
+            //установка DTO
+            DTO = dto;
             //настройка панели
-            Size = new Size(450, 60);
+            Size = new Size(431, 149);
             BackColor = Color.FromArgb(25, 23, 24);
-            MouseEnter += ElementPanel_MouseEnter;
-            MouseLeave += ElementPanel_MouseLeave;
-
-            //настройка Иконки сущности
-            Icon = new PictureBox();
-            Icon.SizeMode = PictureBoxSizeMode.StretchImage;
-            Icon.Size = new Size(50, 50);
-            Icon.Location = new Point(5, 5); // Устанавливаем расположение
-            Controls.Add(Icon);
-
-            //Настройка надписи-имени
-            EffectName = new Label();
-            EffectName.AutoSize = true;
-            EffectName.Font = new Font("Century Gothic", 14F, FontStyle.Regular, GraphicsUnit.Point, 204);
-            EffectName.ForeColor = SystemColors.AppWorkspace;
-            EffectName.Size = new Size(100, 50);
-            EffectName.Location = new Point(60, 5); //Устанавливаем расположение
-            Controls.Add(EffectName);
-        }
-        // Обработчик события MouseEnter для панели
-        private void ElementPanel_MouseEnter(object sender, EventArgs e)
-        {
-            BackColor = Color.FromArgb(50, 48, 49); // Устанавливаем цвет фона при наведении
-        }
-
-        // Обработчик события MouseLeave для панели
-        private void ElementPanel_MouseLeave(object sender, EventArgs e)
-        {
-            Point localMousePosition = PointToClient(MousePosition);
-            if (!ClientRectangle.Contains(localMousePosition))
+            MouseEnter += (sender, e) =>
             {
-                BackColor = Color.FromArgb(25, 23, 24); // Устанавливаем исходный цвет фона, если мышь не находится над панелью
-            }
+                BackColor = Color.FromArgb(50, 48, 49); // Устанавливаем цвет фона при наведении
+            };
+            MouseLeave += (sender, e) =>
+            {
+                Point localMousePosition = PointToClient(MousePosition);
+                if (!ClientRectangle.Contains(localMousePosition))
+                {
+                    BackColor = Color.FromArgb(25, 23, 24); // Устанавливаем исходный цвет фона, если мышь не находится над панелью
+                }
+            };
+            // 
+            // EntityName
+            // 
+            EntityName.Font = new Font("Century Gothic", 14F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            EntityName.ForeColor = SystemColors.AppWorkspace;
+            EntityName.Location = new Point(69, 6);
+            EntityName.Size = new Size(323, 25);
+            EntityName.Text = dto.BaseData.Name;
+            // 
+            // EntityDescription
+            // 
+            EntityDescription.Font = new Font("Century Gothic", 10F);
+            EntityDescription.ForeColor = SystemColors.AppWorkspace;
+            EntityDescription.Location = new Point(3, 69);
+            EntityDescription.Size = new Size(424, 75);
+            EntityDescription.Text = dto.BaseData.Description;
+            // 
+            // EntityIcon
+            // 
+            EntityIcon.Location = new Point(3, 3);
+            EntityIcon.Name = "EntityIcon";
+            EntityIcon.Size = new Size(63, 63);
+            EntityIcon.SizeMode = PictureBoxSizeMode.StretchImage;
+            EntityIcon.Image = Image.FromFile(dto.BaseData.Icon);
+            // 
+            // AddEntityToCharacterButton
+            // 
+            AddEntityToCharacterButton.BackColor = SystemColors.Control;
+            AddEntityToCharacterButton.Font = new Font("Century Gothic", 12F);
+            AddEntityToCharacterButton.Location = new Point(203, 36);
+            AddEntityToCharacterButton.Size = new Size(107, 30);
+            AddEntityToCharacterButton.Text = "Добавить";
+            // 
+            // EditEntityButton
+            // 
+            EditEntityButton.BackColor = SystemColors.Control;
+            EditEntityButton.Font = new Font("Century Gothic", 12F);
+            EditEntityButton.Location = new Point(69, 36);
+            EditEntityButton.Size = new Size(134, 30);
+            EditEntityButton.Text = "Редактировать";
+            EditEntityButton.Click += EditEntity;
+            // 
+            // DeleteEntityButton
+            // 
+            DeleteEntityButton.BackColor = Color.DarkRed;
+            DeleteEntityButton.FlatStyle = FlatStyle.Popup;
+            DeleteEntityButton.Font = new Font("Century Gothic", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            DeleteEntityButton.Location = new Point(397, 3);
+            DeleteEntityButton.Size = new Size(30, 30);
+            DeleteEntityButton.Text = "X";
+            DeleteEntityButton.Click += DeleteEntity;
+
+            //добавление элементов
+            Controls.Add(AddEntityToCharacterButton);
+            Controls.Add(EditEntityButton);
+            Controls.Add(DeleteEntityButton);
+            Controls.Add(EntityName);
+            Controls.Add(EntityIcon);
+        }
+        public abstract void EditEntity(object sender, EventArgs e);
+        public abstract void DeleteEntity(object sender, EventArgs e);
+    }
+    public class PPMPanel : GameEntityPanel<PassiveParameterModifier.PPM_DTO>
+    {
+        public PPMPanel(PassiveParameterModifier.PPM_DTO dto) : base(dto)
+        {
+
         }
 
-        public GameEntityPanel SetSerialPosition(int number)
+        public override void DeleteEntity(object sender, EventArgs e)
         {
-            Location = new Point(0, 60 * number);
-            return this;
+            throw new NotImplementedException();
+        }
+
+        public override void EditEntity(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

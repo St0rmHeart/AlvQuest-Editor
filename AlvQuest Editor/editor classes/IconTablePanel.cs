@@ -22,12 +22,8 @@
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            // Устанавливаем цвет границы
-            Color borderColor = Color.FromArgb(98, 96, 100);
-            // Толщина границы
-            int borderWidth = 1;
-            // Создаем перо с заданным цветом и толщиной
-            using (Pen borderPen = new Pen(borderColor, borderWidth))
+            using (Graphics g = CreateGraphics())
+            using (Pen borderPen = new Pen(Color.FromArgb(98, 96, 100), 1))
             {
                 // Рисуем прямоугольник вокруг панели, чтобы создать границу
                 e.Graphics.DrawRectangle(borderPen, new Rectangle(0, 0, Width - 1, Height - 1));
@@ -58,11 +54,9 @@
         }
         public IconTablePanel(int cellSize)
         {
-            Location = new Point(0, 0);
             Size = new Size(cellSize, cellSize);
             MouseEnter += IconTablePanel_MouseEnter;
             MouseLeave += IconTablePanel_MouseLeave;
-
             IconPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             IconPictureBox.Location = new Point(1, 1);
             IconPictureBox.Size = new Size(Size.Width - 2, Size.Height - 2);

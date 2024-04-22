@@ -500,10 +500,10 @@ namespace AlvQuest_Editor
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public string IconName { get; set; }
+        public string Icon { get; set; }
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, Description, IconName);
+            return HashCode.Combine(Name, Description, Icon);
         }
     }
 }

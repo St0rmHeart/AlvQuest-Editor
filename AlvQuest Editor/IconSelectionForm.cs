@@ -10,7 +10,6 @@ namespace AlvQuest_Editor
         public IconSelectionForm()
         {
             InitializeComponent();
-            
         }
 
         private void _effectsIconsButon_Click(object sender, EventArgs e)

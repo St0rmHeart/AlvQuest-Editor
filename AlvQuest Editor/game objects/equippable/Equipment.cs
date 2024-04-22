@@ -38,7 +38,7 @@
                 return new Equipment(
                         name: BaseData.Name,
                         description: BaseData.Description,
-                        iconName: BaseData.IconName,
+                        iconName: BaseData.Icon,
                         effects: new List<BaseEffect>(Effects.Select(effect => effect.RecreateOriginal()).ToList()),
                         bodyPart: BodyPart);
 

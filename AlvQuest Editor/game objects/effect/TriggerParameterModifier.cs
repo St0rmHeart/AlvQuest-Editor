@@ -224,7 +224,7 @@
                 return new TriggerParameterModifier(
                     name: BaseData.Name,
                     description: BaseData.Description,
-                    iconName: BaseData.IconName,
+                    iconName: BaseData.Icon,
                     triggerlogicalModule: TriggerLogicalModule_DTO.RecreateLogicalModule(),
                     ticklogicalModule: TickLogicalModule_DTO.RecreateLogicalModule(),
                     duration: Duration,

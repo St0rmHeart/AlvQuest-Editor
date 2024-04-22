@@ -28,7 +28,7 @@
         public string IconName { get; }
         protected BaseData GetBaseData()
         {
-            return new BaseData { Name = Name, Description = Description, IconName = IconName };
+            return new BaseData { Name = Name, Description = Description, Icon = IconName };
         }
         public abstract void Installation(CharacterSlot owner, CharacterSlot enemy);
         public abstract void Uninstallation();
@@ -66,7 +66,7 @@
         }
         public TBuilder SetIcon(string iconName)
         {
-            _entityData.BaseData.IconName = iconName;
+            _entityData.BaseData.Icon = iconName;
             return this as TBuilder;
         }
         protected void ValidateBaseContent()
@@ -74,7 +74,7 @@
             var baseData = _entityData.BaseData;
             if (baseData.Name == null || baseData.Name == "") throw new ArgumentException("Отсутствует название.");
             if (baseData.Description == null || baseData.Description == "") throw new ArgumentException("Отсутствует описание.");
-            if (baseData.IconName == null) throw new ArgumentException("Отсутствует иконка.");
+            if (baseData.Icon == null) throw new ArgumentException("Отсутствует иконка.");
         }
         public TProduct BuildEntity()
         {

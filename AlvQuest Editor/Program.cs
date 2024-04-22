@@ -13,7 +13,6 @@
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            CharacterCard.Show();
             Application.Run(MainMenu);
         }
     }

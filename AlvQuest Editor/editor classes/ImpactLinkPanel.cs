@@ -198,35 +198,33 @@ namespace AlvQuest_Editor
         {
             TextBox textBox = sender as TextBox;
             // Проверяем, является ли введенный символ цифрой, точкой, или клавишей Backspace или минусом
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.') && (e.KeyChar != '-'))
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != ',') && (e.KeyChar != '-'))
             {
                 e.Handled = true;
             }
-
             // Проверяем, что введенная точка не является первым символом и что она вводится только один раз
-            if ((e.KeyChar == '.') && (textBox.Text.IndexOf('.') > -1 || textBox.Text.Length == 0))
+            if ((e.KeyChar == ',') && (textBox.Text.IndexOf(',') > -1 || textBox.Text.Length == 0))
             {
                 e.Handled = true;
             }
-
-            // Проверяем, что минус введен только в начале строки и только один раз
-            if ((e.KeyChar == '-') && (textBox.Text.IndexOf('-') > -1 || textBox.SelectionStart != 0))
-            {
-                e.Handled = true;
-            }
-
             // Проверяем, что нули не вводятся в начале числа или после точки
             if (e.KeyChar == '0' && (textBox.Text == "0" || textBox.Text == "-0"))
             {
                 e.Handled = true;
             }
-            if (textBox.Text.Contains("."))
+            // 
+            if (textBox.Text.Contains(','))
             {
-                int dotIndex = textBox.Text.IndexOf('.');
+                int dotIndex = textBox.Text.IndexOf(',');
                 if (textBox.SelectionStart > dotIndex && textBox.Text.Length - dotIndex >= 5 && !char.IsControl(e.KeyChar))
                 {
                     e.Handled = true;
                 }
+            }
+            // Проверяем, что минус введен только в начале строки и только один раз
+            if ((e.KeyChar == '-') && (textBox.Text.IndexOf('-') > -1 || textBox.SelectionStart != 0))
+            {
+                e.Handled = true;
             }
         }
         #endregion
