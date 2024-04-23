@@ -65,13 +65,17 @@ namespace AlvQuest_Editor
         }
         private void EffectListButton_Click(object sender, EventArgs e)
         {
+            _gameEntityListPanel.SuspendLayout();
             _gameEntityListPanel.Controls.Clear();
-            foreach (var item in EditorStatic.PPMPanelsList)
+            for (int i = 0; i < EditorStatic.PPMPanelsList.Count; i++)
             {
-                item.Location = new Point(0, item.Height * item.Index);
-                _gameEntityListPanel.Controls.Add(item);
+                var currentPPMP = EditorStatic.PPMPanelsList[i];
+                currentPPMP.Location = new Point(0, currentPPMP.Height * i);
+                _gameEntityListPanel.Controls.Add(currentPPMP);
             }
             UpdateButtons(sender as Button);
+            _gameEntityListPanel.ResumeLayout(false);
+            _gameEntityListPanel.PerformLayout();
         }
         private void EquipmentListButton_Click(object sender, EventArgs e)
         {
@@ -128,10 +132,7 @@ namespace AlvQuest_Editor
         private void PPMCreationMenuButton_Click(object sender, EventArgs e)
         {
             EffectTypeSelectionMode();
-            int x = Location.X + 461; // Центрирование по горизонтали
-            int y = Location.Y + 217; // Смещение по вертикали
-            EditorStatic.PPMCreationForm.Location = new Point(x, y);
-            EditorStatic.PPMCreationForm.Show();
+            EditorStatic.PPMCreationForm.InitPPMCreationForm();
         }
     }
 

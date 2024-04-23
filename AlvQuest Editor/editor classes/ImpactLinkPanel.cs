@@ -1,14 +1,15 @@
-﻿using static System.Windows.Forms.LinkLabel;
+﻿using System.Collections.Generic;
+using static System.Windows.Forms.LinkLabel;
 
 namespace AlvQuest_Editor
 {
     public class ImpactLinkPanel : Panel
     {
-        public TextBox ModificationValueTextBox { get; } = new();
-        public ComboBox VariableComboBox { get; } = new();
-        public ComboBox DerivativeComboBox { get; } = new();
-        public ComboBox CharacteristicComboBox { get; } = new();
         public ComboBox TargetComboBox { get; } = new();
+        public ComboBox CharacteristicComboBox { get; } = new();
+        public ComboBox DerivativeComboBox { get; } = new();
+        public ComboBox VariableComboBox { get; } = new();
+        public TextBox ModificationValueTextBox { get; } = new();
         public Button LinkDeletionButton { get; } = new();
         public int Index { get; set; }
         public ImpactLinkPanel(Dictionary<string, string> impactLinkData = null)
@@ -18,23 +19,25 @@ namespace AlvQuest_Editor
             // 
             // _targetComboBox
             //
-            TargetComboBox.DataSource = Enum.GetValues(typeof(EPlayerType));
+            TargetComboBox.Items.AddRange([EPlayerType.None, EPlayerType.Self, EPlayerType.Enemy]);
             TargetComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            TargetComboBox.SelectedIndex = 0;
+            TargetComboBox.Enabled = true;
             TargetComboBox.Font = new Font("Century Gothic", 14F);
             TargetComboBox.FormattingEnabled = true;
             TargetComboBox.Location = new Point(3, 3);
-            TargetComboBox.Name = "_targetComboBox";
             TargetComboBox.Size = new Size(90, 30);
             TargetComboBox.SelectionChangeCommitted += _targetComboBox_SelectionChangeCommitted;
             // 
             // _characteristicComboBox
-            // 
+            //
+            CharacteristicComboBox.Items.AddRange([ECharacteristic.None, ECharacteristic.Strength, ECharacteristic.Dexterity, ECharacteristic.Endurance, ECharacteristic.Fire, ECharacteristic.Water, ECharacteristic.Air, ECharacteristic.Earth]);
             CharacteristicComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            CharacteristicComboBox.SelectedIndex = -1;
             CharacteristicComboBox.Enabled = false;
             CharacteristicComboBox.Font = new Font("Century Gothic", 14F);
             CharacteristicComboBox.FormattingEnabled = true;
             CharacteristicComboBox.Location = new Point(96, 3);
-            CharacteristicComboBox.Name = "_characteristicComboBox";
             CharacteristicComboBox.Size = new Size(128, 30);
             CharacteristicComboBox.SelectionChangeCommitted += _characteristicComboBox_SelectionChangeCommitted;
             // 
@@ -45,18 +48,18 @@ namespace AlvQuest_Editor
             DerivativeComboBox.Font = new Font("Century Gothic", 14F);
             DerivativeComboBox.FormattingEnabled = true;
             DerivativeComboBox.Location = new Point(227, 3);
-            DerivativeComboBox.Name = "_derivativeComboBox";
             DerivativeComboBox.Size = new Size(180, 30);
             DerivativeComboBox.SelectionChangeCommitted += _derivativeComboBox_SelectionChangeCommitted;
             // 
             // _variableComboBox
-            // 
+            //
+            VariableComboBox.Items.AddRange([EVariable.None, EVariable.A0, EVariable.B1, EVariable.B2, EVariable.C1, EVariable.C2, EVariable.D1, EVariable.D2]);
             VariableComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            VariableComboBox.SelectedIndex = -1;
             VariableComboBox.Enabled = false;
             VariableComboBox.Font = new Font("Century Gothic", 14F);
             VariableComboBox.FormattingEnabled = true;
             VariableComboBox.Location = new Point(410, 3);
-            VariableComboBox.Name = "_variableComboBox";
             VariableComboBox.Size = new Size(73, 30);
             VariableComboBox.SelectionChangeCommitted += _variableComboBox_SelectionChangeCommitted;
             // 
@@ -78,10 +81,10 @@ namespace AlvQuest_Editor
             LinkDeletionButton.FlatStyle = FlatStyle.Popup;
             LinkDeletionButton.Font = new Font("Century Gothic", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 204);
             LinkDeletionButton.Location = new Point(562, 3);
-            LinkDeletionButton.Name = "_linkDeletionButton";
             LinkDeletionButton.Size = new Size(30, 30);
             LinkDeletionButton.Text = "X";
             LinkDeletionButton.UseVisualStyleBackColor = false;
+            
             // 
             // ImpactLinkPanel
             //
@@ -93,6 +96,8 @@ namespace AlvQuest_Editor
             Controls.Add(VariableComboBox);
             Size = new Size(595, 36);
             #endregion
+
+            #region Установка ссылки, если она передана
             if (impactLinkData != null &&
                 impactLinkData.TryGetValue("Target", out string playerTypeStr) &&
                 impactLinkData.TryGetValue("Characteristic", out string characteristicStr) &&
@@ -107,23 +112,22 @@ namespace AlvQuest_Editor
             {
                 TargetComboBox.SelectedIndex = (int)playerType;
 
-                CharacteristicComboBox.DataSource = Enum.GetValues(typeof(ECharacteristic));
                 CharacteristicComboBox.SelectedIndex = (int)characteristic;
                 CharacteristicComboBox.Enabled = true;
 
                 List<EDerivative> dataList = new(AlvQuestStatic.CHAR_DER_PAIRS[characteristic]);
-                dataList.Insert(0, EDerivative.None);
-                DerivativeComboBox.DataSource = dataList;
-                DerivativeComboBox.SelectedIndex = dataList.IndexOf(derivative);
+                object[] dataArray = [EDerivative.None, .. dataList.Cast<object>()];
+                DerivativeComboBox.Items.AddRange(dataArray);
+                DerivativeComboBox.SelectedIndex = AlvQuestStatic.CHAR_DER_PAIRS[characteristic].IndexOf(derivative) + 1;
                 DerivativeComboBox.Enabled = true;
 
-                VariableComboBox.DataSource = Enum.GetValues(typeof(EVariable));
                 VariableComboBox.SelectedIndex = (int)variable;
                 VariableComboBox.Enabled = true;
 
                 ModificationValueTextBox.Text = valueStr;
                 ModificationValueTextBox.Enabled = true;
             }
+            #endregion
             PerformLayout();
         }
 
@@ -133,17 +137,17 @@ namespace AlvQuest_Editor
             if (TargetComboBox.SelectedIndex == 0)
             {
                 CharacteristicComboBox.Enabled = false;
-                CharacteristicComboBox.DataSource = null;
+                CharacteristicComboBox.SelectedIndex = -1;
             }
             else
             {
-                CharacteristicComboBox.DataSource = Enum.GetValues(typeof(ECharacteristic));
+                CharacteristicComboBox.SelectedIndex = 0;
                 CharacteristicComboBox.Enabled = true;
             }
             DerivativeComboBox.Enabled = false;
-            DerivativeComboBox.DataSource = null;
+            DerivativeComboBox.Items.Clear();
             VariableComboBox.Enabled = false;
-            VariableComboBox.DataSource = null;
+            VariableComboBox.SelectedIndex = -1;
             ModificationValueTextBox.Enabled = false;
             ModificationValueTextBox.Text = string.Empty;
         }
@@ -152,18 +156,20 @@ namespace AlvQuest_Editor
             if (CharacteristicComboBox.SelectedIndex == 0)
             {
                 DerivativeComboBox.Enabled = false;
-                DerivativeComboBox.DataSource = null;
+                DerivativeComboBox.Items.Clear();
             }
             else
             {
+                DerivativeComboBox.Items.Clear();
                 var characteristic = (ECharacteristic)CharacteristicComboBox.SelectedIndex;
-                List<EDerivative> dataList = new List<EDerivative>(AlvQuestStatic.CHAR_DER_PAIRS[characteristic]);
-                dataList.Insert(0, EDerivative.None);
-                DerivativeComboBox.DataSource = dataList;
+                List<EDerivative> dataList = new(AlvQuestStatic.CHAR_DER_PAIRS[characteristic]);
+                object[] dataArray = [EDerivative.None, .. dataList.Cast<object>()];
+                DerivativeComboBox.Items.AddRange(dataArray);
+                DerivativeComboBox.SelectedIndex = 0;
                 DerivativeComboBox.Enabled = true;
             }
             VariableComboBox.Enabled = false;
-            VariableComboBox.DataSource = null;
+            VariableComboBox.SelectedIndex = -1;
             ModificationValueTextBox.Enabled = false;
             ModificationValueTextBox.Text = string.Empty;
         }
@@ -172,11 +178,11 @@ namespace AlvQuest_Editor
             if (DerivativeComboBox.SelectedIndex == 0)
             {
                 VariableComboBox.Enabled = false;
-                VariableComboBox.DataSource = null;
+                VariableComboBox.SelectedIndex = -1;
             }
             else
             {
-                VariableComboBox.DataSource = Enum.GetValues(typeof(EVariable));
+                VariableComboBox.SelectedIndex = 0;
                 VariableComboBox.Enabled = true;
             }
             ModificationValueTextBox.Enabled = false;
@@ -187,12 +193,12 @@ namespace AlvQuest_Editor
             if (VariableComboBox.SelectedIndex == 0)
             {
                 ModificationValueTextBox.Enabled = false;
+                ModificationValueTextBox.Text = string.Empty;
             }
             else
             {
                 ModificationValueTextBox.Enabled = true;
             }
-            ModificationValueTextBox.Text = string.Empty;
         }
         private void _modificationValueTextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -233,7 +239,7 @@ namespace AlvQuest_Editor
         {
             var playerType = (EPlayerType)TargetComboBox.SelectedIndex;
             var characteristic = (ECharacteristic)CharacteristicComboBox.SelectedIndex;
-            var derivative = (EDerivative)DerivativeComboBox.SelectedIndex;
+            var derivative = AlvQuestStatic.CHAR_DER_PAIRS[characteristic][DerivativeComboBox.SelectedIndex - 1];
             var variable = (EVariable)VariableComboBox.SelectedIndex;
             _ = double.TryParse(ModificationValueTextBox.Text, out double value);
             return (playerType, characteristic, derivative, variable, value);

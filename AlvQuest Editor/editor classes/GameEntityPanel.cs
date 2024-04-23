@@ -1,4 +1,6 @@
-﻿namespace AlvQuest_Editor
+﻿using System.Windows.Forms;
+
+namespace AlvQuest_Editor
 {
     public abstract class GameEntityPanel<TDTO> : Panel
         where TDTO : BaseDTO
@@ -55,7 +57,6 @@
             EntityName.ForeColor = SystemColors.AppWorkspace;
             EntityName.Location = new Point(69, 6);
             EntityName.Size = new Size(323, 25);
-            
             // 
             // EntityDescription
             // 
@@ -63,7 +64,6 @@
             EntityDescription.ForeColor = SystemColors.AppWorkspace;
             EntityDescription.Location = new Point(3, 69);
             EntityDescription.Size = new Size(424, 75);
-            
             // 
             // EntityIcon
             // 
@@ -71,7 +71,6 @@
             EntityIcon.Name = "EntityIcon";
             EntityIcon.Size = new Size(63, 63);
             EntityIcon.SizeMode = PictureBoxSizeMode.StretchImage;
-            
             // 
             // AddEntityToCharacterButton
             // 
@@ -105,18 +104,14 @@
             Controls.Add(EditEntityButton);
             Controls.Add(DeleteEntityButton);
             Controls.Add(EntityName);
+            Controls.Add(EntityDescription);
             Controls.Add(EntityIcon);
         }
         public abstract void EditEntity(object sender, EventArgs e);
         public abstract void DeleteEntity(object sender, EventArgs e);
     }
-    public class PPMPanel : GameEntityPanel<PassiveParameterModifier.PPM_DTO>
+    public class PPMPanel(PassiveParameterModifier.PPM_DTO dto) : GameEntityPanel<PassiveParameterModifier.PPM_DTO>(dto)
     {
-        public PPMPanel(PassiveParameterModifier.PPM_DTO dto) : base(dto)
-        {
-
-        }
-
         public override void DeleteEntity(object sender, EventArgs e)
         {
             throw new NotImplementedException();
@@ -124,7 +119,9 @@
 
         public override void EditEntity(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            Button SenderButton = sender as Button;
+            PPMPanel parentPanel = SenderButton.Parent as PPMPanel;
+            EditorStatic.PPMCreationForm.InitPPMCreationForm(parentPanel);
         }
     }
 }

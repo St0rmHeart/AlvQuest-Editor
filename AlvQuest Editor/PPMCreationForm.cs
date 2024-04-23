@@ -2,21 +2,20 @@
 {
     public partial class PPMCreationForm : BaseEditorForm
     {
-        private bool _isNewPPM = true;
-        private PPMPanel _panel;
-        public PassiveParameterModifier.PPM_DTO EditableEffect { get; set; } = new();
-        private readonly List<ImpactLinkPanel> ImpactLinkPanelsList = [];
-        private string _iconFile;
+        private readonly List<ImpactLinkPanel> ImpactLinkPanelList = [];
+        private bool _isNewPPM;
+        private PPMPanel _editablePanel;
+        private string _iconFileData;
         public string IconFile
         {
             get
             {
-                return _iconFile;
+                return _iconFileData;
             }
             set
             {
-                _iconFile = value;
-                _iconPictureBox.Image = Image.FromFile(value);
+                _iconFileData = value;
+                _iconPictureBox.Image = value == null ? null : Image.FromFile(value);
                 ValidateContent(null, null);
             }
         }
@@ -26,34 +25,58 @@
             _nameTextBox.TextChanged += ValidateContent;
             _decriptionRichTextBox.TextChanged += ValidateContent;
             _impactPanelListPanel.Paint += ValidateContent;
+            _addImpactLinkButton.MouseEnter += (sender, e) =>
+            {
+                _addImpactLinkButton.BackColor = Color.FromArgb(50, 48, 49);
+            };
+            _addImpactLinkButton.MouseLeave += (sender, e) =>
+            {
+                _addImpactLinkButton.BackColor = Color.FromArgb(25, 23, 24);
+            };
+            _addImpactLinkButton.MouseDown += (sender, e) =>
+            {
+                _addImpactLinkButton.BackColor = Color.FromArgb(150, 148, 149);
+            };
+            _addImpactLinkButton.MouseUp += (sender, e) =>
+            {
+                _addImpactLinkButton.BackColor = Color.FromArgb(25, 23, 24);
+                AddNewImpactLinkPanel();
+            };
+            _iconPictureBox.Click += (sender, e) =>
+            {
+                EditorStatic.IconSelectionForm.Visible = true;
+            };
         }
-        #region Кнопка добавления эффектта
-        private void _addImpactLinkButton_MouseEnter(object sender, EventArgs e)
+        public void InitPPMCreationForm(PPMPanel editablePanel = null)
         {
-            _addImpactLinkButton.BackColor = Color.FromArgb(50, 48, 49);
+            //настройка начального положения
+            int x = EditorStatic.MainMenu.Location.X + 461;
+            int y = EditorStatic.MainMenu.Location.Y + 217; 
+            EditorStatic.PPMCreationForm.Location = new Point(x, y);
+            if (editablePanel == null)
+            {
+                _isNewPPM = true;     
+            }
+            else
+            {
+                _isNewPPM = false;
+                _editablePanel = editablePanel;
+                _nameTextBox.Text = editablePanel.DTO.BaseData.Name;
+                _decriptionRichTextBox.Text = editablePanel.DTO.BaseData.Description;
+                IconFile = editablePanel.DTO.BaseData.Icon;
+                foreach (var impactLink in editablePanel.DTO.Links)
+                {
+                    AddNewImpactLinkPanel(impactLink);
+                }
+            }
+            Show();
         }
-
-        private void _addImpactLinkButton_MouseLeave(object sender, EventArgs e)
+        private void AddNewImpactLinkPanel(Dictionary<string, string> impactLink = null)
         {
-            _addImpactLinkButton.BackColor = Color.FromArgb(25, 23, 24);
-        }
-        private void _addImpactLinkButton_MouseDown(object sender, MouseEventArgs e)
-        {
-            _addImpactLinkButton.BackColor = Color.FromArgb(150, 148, 149);
-        }
-        private void _addImpactLinkButton_MouseUp(object sender, MouseEventArgs e)
-        {
-            _addImpactLinkButton.BackColor = Color.FromArgb(25, 23, 24);
-            AddNewImpactLinkPanel();
-        }
-        #endregion
-        private void AddNewImpactLinkPanel()
-        {
-
-            var impactLinkPanel = new ImpactLinkPanel();
+            var impactLinkPanel = new ImpactLinkPanel(impactLink);
             impactLinkPanel.LinkDeletionButton.Click += DeleteImpactLinkPanel;
             impactLinkPanel.ModificationValueTextBox.TextChanged += ValidateContent;
-            ImpactLinkPanelsList.Add(impactLinkPanel);
+            ImpactLinkPanelList.Add(impactLinkPanel);
             _impactPanelListPanel.Controls.Add(impactLinkPanel);
             UpdateImpactLinkPanelList();
         }
@@ -61,7 +84,7 @@
         {
             var impactLinkPanelDelButton = sender as Button;
             var impactLinkPanel = impactLinkPanelDelButton.Parent as ImpactLinkPanel;
-            ImpactLinkPanelsList.RemoveAt(impactLinkPanel.Index);
+            ImpactLinkPanelList.RemoveAt(impactLinkPanel.Index);
             _impactPanelListPanel.Controls.RemoveAt(impactLinkPanel.Index);
             impactLinkPanel.LinkDeletionButton.Click -= DeleteImpactLinkPanel;
             impactLinkPanel.ModificationValueTextBox.TextChanged -= ValidateContent;
@@ -69,25 +92,16 @@
         }
         private void UpdateImpactLinkPanelList()
         {
-            //_impactPanelListPanel.Controls.Clear();
-            for (int i = 0; i < ImpactLinkPanelsList.Count; i++)
+            for (int i = 0; i < ImpactLinkPanelList.Count; i++)
             {
-                var currentImpactLinkPanel = ImpactLinkPanelsList[i];
+                var currentImpactLinkPanel = ImpactLinkPanelList[i];
                 currentImpactLinkPanel.Index = i;
-                currentImpactLinkPanel.Location = new Point(0, 36 * i);
-
-                //_impactPanelListPanel.Controls.Add(currentImpactLinkPanel);
+                currentImpactLinkPanel.Location = new Point(0, currentImpactLinkPanel.Height * i);
             }
             _impactPanelListPanel.Invalidate();
         }
-
-        private void OpenIconSelectionForm(object sender, EventArgs e)
-        {
-            EditorStatic.IconSelectionForm.Visible = true;
-        }
         private void ValidateContent(object sender, EventArgs e)
         {
-            SuspendLayout();
             _createEffectButton.Enabled = false;
             _errorListBox.Items.Clear();
             if (string.IsNullOrEmpty(_nameTextBox.Text))
@@ -98,28 +112,41 @@
             {
                 _errorListBox.Items.Add("Отсутствует описание эффекта.");
             }
-            if (string.IsNullOrEmpty(_iconFile))
+            if (string.IsNullOrEmpty(_iconFileData))
             {
                 _errorListBox.Items.Add("Отсутствует иконка эффекта.");
             }
-            if (ImpactLinkPanelsList.Count == 0)
+            if (ImpactLinkPanelList.Count == 0)
             {
                 _errorListBox.Items.Add("Отсутствует ссылка эффекта.");
             }
-            else if (ImpactLinkPanelsList.Any(x => !double.TryParse(x.ModificationValueTextBox.Text, out _)))
+            else if (ImpactLinkPanelList.Any(x => !double.TryParse(x.ModificationValueTextBox.Text, out _)))
             {
                 _errorListBox.Items.Add("Некорректно задана ссылка эффекта.");
             }
             _createEffectButton.Enabled = _errorListBox.Items.Count == 0;
-            PerformLayout();
+        }
+        private void Reset()
+        {
+            _nameTextBox.Text = string.Empty;
+            _decriptionRichTextBox.Text = string.Empty;
+            _iconFileData = string.Empty;
+            foreach (var currentImpactLinkPanel in ImpactLinkPanelList)
+            {
+                currentImpactLinkPanel.LinkDeletionButton.Click -= DeleteImpactLinkPanel;
+                currentImpactLinkPanel.ModificationValueTextBox.TextChanged -= ValidateContent;
+            }
+            ImpactLinkPanelList.Clear();
+            _impactPanelListPanel.Controls.Clear();
+            IconFile = null;
         }
         private void SavePPM(object sender, EventArgs e)
         {
             PassiveParameterModifier.PPM_DTO dto = new();
             dto.BaseData.Name = _nameTextBox.Text;
             dto.BaseData.Description = _decriptionRichTextBox.Text;
-            dto.BaseData.Icon = _iconFile;
-            dto.Links = ImpactLinkPanelsList.Select(x => x.GetImpactLinkDTO()).ToList();
+            dto.BaseData.Icon = IconFile;
+            dto.Links = ImpactLinkPanelList.Select(x => x.GetImpactLinkDTO()).ToList();
             if (_isNewPPM)
             {
                 var ppmp = new PPMPanel(dto);
@@ -128,9 +155,10 @@
             }
             else
             {
-
+                _editablePanel.DTO = dto;
             }
             Visible = false;
+            Reset();
         }
     }
 }

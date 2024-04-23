@@ -58,8 +58,7 @@
             _iconPictureBox = new PictureBox();
             _errorListBox = new ListBox();
             _createEffectButton = new Button();
-            ((System.ComponentModel.ISupportInitialize)_addImpactLinkButton).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)_iconPictureBox).BeginInit();
+
             SuspendLayout();
             // 
             // _PPMEditorLabel
@@ -178,10 +177,7 @@
             _addImpactLinkButton.SizeMode = PictureBoxSizeMode.StretchImage;
             _addImpactLinkButton.TabIndex = 0;
             _addImpactLinkButton.TabStop = false;
-            _addImpactLinkButton.MouseDown += _addImpactLinkButton_MouseDown;
-            _addImpactLinkButton.MouseEnter += _addImpactLinkButton_MouseEnter;
-            _addImpactLinkButton.MouseLeave += _addImpactLinkButton_MouseLeave;
-            _addImpactLinkButton.MouseUp += _addImpactLinkButton_MouseUp;
+            
             // 
             // _iconPictureBox
             // 
@@ -193,7 +189,7 @@
             _iconPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             _iconPictureBox.TabIndex = 34;
             _iconPictureBox.TabStop = false;
-            _iconPictureBox.Click += OpenIconSelectionForm;
+            
             // 
             // _errorListBox
             // 
@@ -243,8 +239,6 @@
             Padding = new Padding(3);
             StartPosition = FormStartPosition.Manual;
             Text = "PPMCreationForm";
-            ((System.ComponentModel.ISupportInitialize)_addImpactLinkButton).EndInit();
-            ((System.ComponentModel.ISupportInitialize)_iconPictureBox).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }

@@ -67,108 +67,89 @@ namespace AlvQuest_Editor
             Arena = new Arena(testHero, AlvQuestStatic.TEMPLATE_CHARACTER);
             #endregion
 
-            /*#region Работа с Json
+            JsonLoad();
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) => JsonSave();
+        }
+
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void JsonLoad()
+        {
             //__ЗАГРУЗКА__
-            private void EditorJSONDataLoad(object sender, EventArgs e)
+            #region Загрузка Эффектов
+            // Загрузка из JSON для PassiveParameterModifier
+            if (File.Exists(FilePathPPM))
             {
-                #region Загрузка Эффектов
-                // Загрузка из JSON для PassiveParameterModifier
-                if (File.Exists(_filePathPPM))
-                {
-                    string jsonPPM = File.ReadAllText(_filePathPPM);
-                    var dtoList = JsonSerializer.Deserialize<List<PassiveParameterModifier.PPM_DTO>>(jsonPPM);
-                    if (dtoList != null)
-                    {
-                        foreach (var dto in dtoList)
-                        {
-                            var ppm = AlvQuestStatic.DTOConverter.ConvertDTOtoPPM(dto);
-                            _effectPanelsList.Add(new EffectPanel(ppm));
-                        }
-                    }
-                }
-                // Загрузка из JSON для TriggerParameterModifier
-                if (File.Exists(_filePathTPM))
-                {
-                    string jsonTPM = File.ReadAllText(_filePathTPM);
-                    var dtoList = JsonSerializer.Deserialize<List<TriggerParameterModifier.TPM_DTO>>(jsonTPM);
-                    if (dtoList != null)
-                    {
-                        foreach (var dto in dtoList)
-                        {
-                            var tpm = AlvQuestStatic.DTOConverter.ConvertDTOtoTPM(dto);
-                            _effectPanelsList.Add(new EffectPanel(tpm));
-                        }
-                    }
-                }
-                // Загрузка из JSON для LogicalModuleEffect
-                if (File.Exists(_filePathLME))
-                {
-                    string jsonLME = File.ReadAllText(_filePathLME);
-                    var dtoList = JsonSerializer.Deserialize<List<LogicalModuleEffect.LME_DTO>>(jsonLME);
-                    if (dtoList != null)
-                    {
-                        foreach (var dto in dtoList)
-                        {
-                            var lme = AlvQuestStatic.DTOConverter.ConvertDTOtoLME(dto);
-                            _effectPanelsList.Add(new EffectPanel(lme));
-                        }
-                    }
-                }
-
-                _effectPanelsList.Add(new EffectPanel(new TriggerParameterModifier.TPM_Builder()
-                    .Name("Наростающая ярость.")
-                    .Description(
-                        "При нанесении более 7 едениц физического урона ваша сила увеличиваете на 5% на 2 хода.\n" +
-                        "Может складываться до 4х раз.")
-                    .Icon("FireKnightIcon")
-                    .TriggerlogicalModule(new LM_02_damageThreshold(damageType: EDamageType.PhysicalDamage, threshold: 7))
-                    .TicklogicalModule(new LM_CONSTANT_TRUE())
-                    .Duration(2)
-                    .MaxStack(4)
-                    .AddLink(EPlayerType.Self, ECharacteristic.Strength, EDerivative.Value, EVariable.C1)
-                    .AddValue(0.05)
-                    .AddTriggerEvent(EPlayerType.Enemy, EEvent.DamageTaking)
-                    .AddTickEventt(EPlayerType.Self, EEvent.StepExecution)
-                    .Build()));
-                _effectPanelsList.Add(new EffectPanel(new PassiveParameterModifier.PPM_Builder()
-                    .Name("Живучесть.")
-                    .Icon("FireKnightIcon")
-                    .Description("Увеличивает максимальное здоровье на 10.")
-                    .AddLink(EPlayerType.Self, ECharacteristic.Endurance, EDerivative.MaxHealth, EVariable.C2)
-                    .AddValue(10)
-                    .Build()));
-                #endregion
+                string jsonPPM = File.ReadAllText(FilePathPPM);
+                var PPMdtoList = JsonSerializer.Deserialize<List<PassiveParameterModifier.PPM_DTO>>(jsonPPM);
+                PPMdtoList?.ForEach(dto => PPMPanelsList.Add(new PPMPanel(dto)));
             }
+            /*// Загрузка из JSON для TriggerParameterModifier
+            if (File.Exists(_filePathTPM))
+            {
+                string jsonTPM = File.ReadAllText(_filePathTPM);
+                var dtoList = JsonSerializer.Deserialize<List<TriggerParameterModifier.TPM_DTO>>(jsonTPM);
+                if (dtoList != null)
+                {
+                    foreach (var dto in dtoList)
+                    {
+                        var tpm = AlvQuestStatic.DTOConverter.ConvertDTOtoTPM(dto);
+                        _effectPanelsList.Add(new EffectPanel(tpm));
+                    }
+                }
+            }*/
 
+            /*_effectPanelsList.Add(new EffectPanel(new TriggerParameterModifier.TPM_Builder()
+                .Name("Наростающая ярость.")
+                .Description(
+                    "При нанесении более 7 едениц физического урона ваша сила увеличиваете на 5% на 2 хода.\n" +
+                    "Может складываться до 4х раз.")
+                .Icon("FireKnightIcon")
+                .TriggerlogicalModule(new LM_02_damageThreshold(damageType: EDamageType.PhysicalDamage, threshold: 7))
+                .TicklogicalModule(new LM_CONSTANT_TRUE())
+                .Duration(2)
+                .MaxStack(4)
+                .AddLink(EPlayerType.Self, ECharacteristic.Strength, EDerivative.Value, EVariable.C1)
+                .AddValue(0.05)
+                .AddTriggerEvent(EPlayerType.Enemy, EEvent.DamageTaking)
+                .AddTickEventt(EPlayerType.Self, EEvent.StepExecution)
+                .Build()));
+            _effectPanelsList.Add(new EffectPanel(new PassiveParameterModifier.PPM_Builder()
+                .Name("Живучесть.")
+                .Icon("FireKnightIcon")
+                .Description("Увеличивает максимальное здоровье на 10.")
+                .AddLink(EPlayerType.Self, ECharacteristic.Endurance, EDerivative.MaxHealth, EVariable.C2)
+                .AddValue(10)
+                .Build()));*/
+            #endregion
+        }
+        public static void JsonSave()
+        {
             //__СОХРАНЕНИЕ__
-            private void EditorJSONDataSave(object sender, FormClosingEventArgs e)
+            #region Сохранение Эффектов
+            var options = new JsonSerializerOptions
             {
-                JsonSerializerOptions options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    IncludeFields = true,
-                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                };
+                WriteIndented = true,
+                IncludeFields = true,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            };
 
-                // Сохранение в JSON для PassiveParameterModifier
-                var PPMdtoList = _effectPanelsList
-                    .Where(ppm => ppm.Effect is PassiveParameterModifier) // Отфильтровать только объекты типа PassiveParameterModifier
-                    .Select(ppm => ((PassiveParameterModifier)ppm.Effect).GetDTO()) // Привести объекты к типу PassiveParameterModifier и вызвать метод GetDTO()
-                    .ToList();
+            // Сохранение в JSON для PassiveParameterModifier
+            var PPMdtoList = PPMPanelsList.Select(ppm => ppm.DTO).ToList();
+            string jsonPPM = JsonSerializer.Serialize(PPMdtoList, options);
+            File.WriteAllText(FilePathPPM, jsonPPM);
 
-                string jsonPPM = JsonSerializer.Serialize(PPMdtoList, options);
-                File.WriteAllText(_filePathPPM, jsonPPM);
-
-                // Сохранение в JSON для TriggerParameterModifier
-                var TPMdtoList = _effectPanelsList
-                    .Where(tpm => tpm.Effect is TriggerParameterModifier) // Отфильтровать только объекты типа TriggerParameterModifier
-                    .Select(tpm => ((TriggerParameterModifier)tpm.Effect).GetDTO()) // Привести объекты к типу TriggerParameterModifier и вызвать метод GetDTO()
-                    .ToList();
-
-                string jsonTPM = JsonSerializer.Serialize(TPMdtoList, options);
-                File.WriteAllText(_filePathTPM, jsonTPM);
-            }
-            #endregion*/
+            /*// Сохранение в JSON для TriggerParameterModifier
+            var TPMdtoList = _effectPanelsList
+                .Where(tpm => tpm.Effect is TriggerParameterModifier) // Отфильтровать только объекты типа TriggerParameterModifier
+                .Select(tpm => ((TriggerParameterModifier)tpm.Effect).GetDTO()) // Привести объекты к типу TriggerParameterModifier и вызвать метод GetDTO()
+                .ToList();
+            string jsonTPM = JsonSerializer.Serialize(TPMdtoList, options);
+            File.WriteAllText(_filePathTPM, jsonTPM);*/
+            #endregion
         }
     }
 }
