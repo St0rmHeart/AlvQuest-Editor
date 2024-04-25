@@ -5,7 +5,7 @@ namespace AlvQuest_Editor
 {
     public static class EditorStatic
     {
-        public static string FilePathPPM { get; } = "json data/effectsPPM.json";
+        public static string FilePathPPM { get; } = "../../../Resources/json data/effectsPPM.json";
         public static string FilePathTPM { get; } = "json data/effectsTPM.json";
         public static Arena Arena { get; set; }
         public static List<PPMPanel> PPMPanelsList { get; } = [];
@@ -31,7 +31,7 @@ namespace AlvQuest_Editor
             var newTriggerParameter = TPMBuilder
                 .SetName("Нарастающая ярость.")
                 .SetDescription(
-                    "При нанесении более 7 едениц физического урона ваша сила увеличиваете на 5% на 2 хода.\n" +
+                    "При нанесении более 7 единиц физического урона ваша сила увеличивается на 5% на 2 хода.\n" +
                     "Может складываться до 4х раз.")
                 .SetIcon("FireKnightIcon")
                 .SetTriggerlogicalModule(new LM_02_damageThreshold(damageType: EDamageType.PhysicalDamage, threshold: 7))

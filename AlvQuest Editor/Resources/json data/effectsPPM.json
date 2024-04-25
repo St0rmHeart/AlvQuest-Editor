@@ -1,0 +1,18 @@
+[
+  {
+    "Links": [
+      {
+        "Target": "Enemy",
+        "Characteristic": "Strength",
+        "Derivative": "TerminationMult",
+        "Variable": "B1",
+        "Value": "4"
+      }
+    ],
+    "BaseData": {
+      "Name": "Тестовый 1 ",
+      "Description": "Тестовое описанеи ",
+      "Icon": "EntityIcons\\Effects\\9.jpg"
+    }
+  }
+]
