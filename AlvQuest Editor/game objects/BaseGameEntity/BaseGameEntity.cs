@@ -38,6 +38,7 @@
     /// <summary>
     /// Общий функционал для всех строителей эффектов
     /// </summary>
+    /// 
     public abstract class BaseBuilder<TBuilder, TProduct, TDTO>
         where TBuilder : BaseBuilder<TBuilder, TProduct, TDTO>
         where TProduct : BaseGameEntity

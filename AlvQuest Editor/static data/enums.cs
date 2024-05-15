@@ -124,5 +124,14 @@ namespace AlvQuest_Editor
         D1,
         D2,
     }
+    public enum  EManaType
+    {
+        None = 0,
+        //Виды маны в игре
+        FireStone = ECharacteristic.Fire,
+        WaterStone = ECharacteristic.Water,
+        AirStone = ECharacteristic.Air,
+        EarthStone = ECharacteristic.Earth,
+    }
 
 }

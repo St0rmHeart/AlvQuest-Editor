@@ -349,6 +349,26 @@ namespace AlvQuest_Editor
         public static readonly Dictionary<ECharacteristic, List<EDerivative>> CHAR_DER_PAIRS;
         public static readonly Character TEMPLATE_CHARACTER;
         public static readonly int ACCURACY_OF_CALCULATIONS = 4;
+        public static bool IsPpossibleToEquip(BaseEquippableEntity entity, Character character)
+        {
+            bool IsAvailable = true;
+            List<ECharacteristic> characteristics = Enum.GetValues(typeof(ECharacteristic)).Cast<ECharacteristic>().Skip(2).ToList();
+            foreach (ECharacteristic characteristic in characteristics)
+            {
+                IsAvailable &= character[characteristic] >= entity.RequirementsForUse[characteristic];
+            }
+            return IsAvailable;
+        }
+        public static bool IsPpossibleToEquip(BaseEquippableEntityDTO entity, Character character)
+        {
+            bool IsAvailable = true;
+            List<ECharacteristic> characteristics = Enum.GetValues(typeof(ECharacteristic)).Cast<ECharacteristic>().Skip(2).ToList();
+            foreach (ECharacteristic characteristic in characteristics)
+            {
+                IsAvailable &= character[characteristic] >= entity.RequirementsForUse[characteristic];
+            }
+            return IsAvailable;
+        }
         public static double Round(this double value)
         {
             return Math.Round(value, ACCURACY_OF_CALCULATIONS);

@@ -127,7 +127,7 @@ namespace AlvQuest_Editor
             #endregion
         }
         public static void JsonSave()
-        {
+        {  
             //__СОХРАНЕНИЕ__
             #region Сохранение Эффектов
             var options = new JsonSerializerOptions

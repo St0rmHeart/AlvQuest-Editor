@@ -7,12 +7,35 @@
         "Derivative": "TerminationMult",
         "Variable": "B1",
         "Value": "4"
+      },
+      {
+        "Target": "Enemy",
+        "Characteristic": "Endurance",
+        "Derivative": "TerminationMult",
+        "Variable": "B2",
+        "Value": "5"
       }
     ],
     "BaseData": {
       "Name": "Тестовый 1 ",
       "Description": "Тестовое описанеи ",
       "Icon": "EntityIcons\\Effects\\9.jpg"
+    }
+  },
+  {
+    "Links": [
+      {
+        "Target": "Enemy",
+        "Characteristic": "Endurance",
+        "Derivative": "AddTurnChance",
+        "Variable": "B2",
+        "Value": "6"
+      }
+    ],
+    "BaseData": {
+      "Name": "апропвролвпровпро",
+      "Description": "пропропропропропопопропропро",
+      "Icon": "EntityIcons\\Effects\\11.jpg"
     }
   }
 ]

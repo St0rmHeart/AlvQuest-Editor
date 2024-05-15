@@ -1,36 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AlvQuest_Editor
+﻿namespace AlvQuest_Editor
 {
     /// <summary>
     /// Класс, в хором хранится вся информация, определющая персонажа
     /// </summary>
-    public partial class Character
+    public partial class Character : BaseGameEntity
     {
         #region _____________________ПОЛЯ_____________________
 
         //границы перехода на новый уровень
         public static readonly int[] levelBoundaries = [0, 100, 150, 250, 400, 600, 900, 1400, 2000, 2800, 3700];
-        //иконка
-        public Image Icon { get; set; }
-        //имя 
-        public string Name { get; set; }
         //уровень 
         public int Level { get; set; }
         //накопленный опыт на уровне 
         public int Xp { get; set; }
-        //накопленное золото+
+        //накопленное золото
         public int Gold { get; set; }
         //количество очков характеристик (за каждый уровень даётся 4 очка)
         private int _charPoints;
 
         //базовые характеристики
-        public Dictionary<ECharacteristic, int> Characteristics { get; private set; } = new Dictionary<ECharacteristic, int>();
+        public Dictionary<ECharacteristic, int> Characteristics { get; private set; } = [];
         //итератор по характеристикам
         public int this[ECharacteristic characteristic]
         {
@@ -42,7 +31,7 @@ namespace AlvQuest_Editor
         //private List<Perk> usedPerks = new List<Perk>();
 
         //носимое снаряжение
-        public Dictionary<EBodyPart, Equipment> Equipment { get; private set; } = new Dictionary<EBodyPart, Equipment>();
+        public Dictionary<EBodyPart, Equipment> Equipment { get; private set; } = [];
         //итератор по снаряжению
         public Equipment this[EBodyPart bodyPart]
         {
@@ -102,6 +91,26 @@ namespace AlvQuest_Editor
                 Level++;
                 _charPoints += 4;
             }
+        }
+
+        public override void Installation(CharacterSlot owner, CharacterSlot enemy)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uninstallation()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override BaseGameEntity Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override BaseDTO GetDTO()
+        {
+            throw new NotImplementedException();
         }
         #endregion
 
@@ -231,5 +240,22 @@ namespace AlvQuest_Editor
             #endregion
         }
         #endregion
+
+        public class CharacterDTO : BaseDTO
+        {
+            public int Level { get; set; }
+            public int Xp { get; set; }
+            public int Gold { get; set; }
+            public int CharPoints { get; set; }
+            public Dictionary<ECharacteristic, int> Characteristics { get; set; }
+            public List<Perk.PerkDTO> Perks { get; set; }
+            public Dictionary<EBodyPart, Equipment.EquipmentDTO> Equipment { get; set; }
+            public List<Spell.SpellDTO> Spells { get; set; }
+
+            public override Character RecreateOriginal()
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

@@ -4,10 +4,15 @@
     /// Предмет снаряжения, который можно одеть в соответсвующий ему слот
     /// </summary>
     public class Equipment : BaseEquippableEntity
-    {
-        //ячейка снаряжения
+    { 
         public EBodyPart BodyPart { get; }
-        private Equipment(string name, string description, string iconName, List<BaseEffect> effects, EBodyPart bodyPart) : base(name, description, iconName, effects)
+        private Equipment(
+            string name,
+            string description,
+            string iconName,
+            List<BaseEffect> effects,
+            Dictionary<ECharacteristic, int> requirementsForUse,
+            EBodyPart bodyPart) : base(name, description, iconName, effects, requirementsForUse)
         {
             BodyPart = bodyPart;
         }
@@ -18,6 +23,7 @@
                 description: Description,
                 iconName: IconName,
                 effects: Effects.Select(effect => effect.Clone()).ToList(),
+                requirementsForUse: new Dictionary<ECharacteristic, int>(RequirementsForUse),
                 bodyPart: BodyPart);
         }
         public override EquipmentDTO GetDTO()
@@ -26,6 +32,7 @@
             {
                 BaseData = GetBaseData(),
                 Effects = Effects.Select(effect => effect.GetDTO()).ToList(),
+                RequirementsForUse = new Dictionary<ECharacteristic, int>(RequirementsForUse),
                 BodyPart = BodyPart
             };
             return dto;
@@ -40,11 +47,11 @@
                         description: BaseData.Description,
                         iconName: BaseData.Icon,
                         effects: new List<BaseEffect>(Effects.Select(effect => effect.RecreateOriginal()).ToList()),
+                        requirementsForUse: new Dictionary<ECharacteristic, int>(RequirementsForUse),
                         bodyPart: BodyPart);
-
             }
         }
-        public class EquipmentBuilder : BaseBuilder<EquipmentBuilder, Equipment, EquipmentDTO>
+        /*public class EquipmentBuilder : BaseBuilder<EquipmentBuilder, Equipment, EquipmentDTO>
         {
             public EquipmentBuilder SetEffect(BaseEffectDTO newEffect)
             {
@@ -66,6 +73,6 @@
             {
                 if (_entityData.Effects?.Count == 0) throw new ArgumentException("Не добавлено ниодногоэффекта");
             }
-        }
+        }*/
     }
 }
