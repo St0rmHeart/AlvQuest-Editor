@@ -344,11 +344,12 @@ namespace AlvQuest_Editor
                .With_Characteristic(ECharacteristic.Earth, 0)
                .Build();
         }
-        public static readonly int HASH_CONST = 16769023;
+        public const int HASH_CONST = 16769023;
+        public const int STONE_GRID_SIZE = 8;
+        public const int ACCURACY_OF_CALCULATIONS = 4;
         public static readonly Dictionary<ECharacteristic, Dictionary<EDerivative, List<ECharacteristic>>> DERIVATIVE_SUBSCRIPTIONS;
         public static readonly Dictionary<ECharacteristic, List<EDerivative>> CHAR_DER_PAIRS;
         public static readonly Character TEMPLATE_CHARACTER;
-        public static readonly int ACCURACY_OF_CALCULATIONS = 4;
         public static bool IsPpossibleToEquip(BaseEquippableEntity entity, Character character)
         {
             bool IsAvailable = true;
