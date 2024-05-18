@@ -20,11 +20,10 @@ namespace AlvQuest_Editor
         public double DefenderDamageSummand { get; set; }
 
 
-        private List<(
+        private readonly List<(
             CharacterSlot attacker,
             CharacterSlot defender,
-            (EDamageType type, double value, bool isblockable, bool isAttackerReact, bool isDefenderReact) damageData)> _attacksList
-            = new List<(CharacterSlot attacker, CharacterSlot defender, (EDamageType type, double value, bool isblockable, bool isAttackerReact, bool isDefenderReact) damageData)>();
+            (EDamageType type, double value, bool isblockable, bool isAttackerReact, bool isDefenderReact) damageData)> _attacksList = [];
 
         #endregion
 
@@ -81,7 +80,7 @@ namespace AlvQuest_Editor
                 if (_attacksList[_counter].damageData.isAttackerReact)
                 {
                     //запускаме ивент на испускание базового урона у атакующего пенрсонажа
-                    attacker.EmitDamageNotification(_attackerDamageType, attackerDamageBaseValue);
+                    attacker.SendEmitDamageNotification(_attackerDamageType, attackerDamageBaseValue);
                     //принимают винальные значения поля:
                     //AttackerDamageMultiplier - на сколько относительно базовго значения должен измениться испускаемый урон 
                     //AttackerDamageSummand - на сколько должен абсолютно должен измениться испускаемый урон
@@ -100,13 +99,13 @@ namespace AlvQuest_Editor
                     //вычисляем принимаемый урон
                     defenderAcceptedDamage = (defenderAcceptedDamage - defenderBlockedDamage).Round();
                     //запускаем ивент на блокирование урона у защищающегося персонажа
-                    defender.BlockDamageNotification(_attackerDamageType, defenderBlockedDamage);
+                    defender.SendBlockDamageNotification(_attackerDamageType, defenderBlockedDamage);
                 }
 
                 if (_attacksList[_counter].damageData.isDefenderReact)
                 {
                     //запускаем ивент на принятие урона у защищающегося персонажа
-                    defender.AcceptDamageNotification(_attackerDamageType, defenderAcceptedDamage);
+                    defender.SendAcceptDamageNotification(_attackerDamageType, defenderAcceptedDamage);
                     //по итогу должны быть заполнены поля:
                     //DefenderDamageMultiplier - на сколько относительно базовго значения должен измениться принимаемый урон 
                     //DefenderDamageSummand - на сколько должен абсолютно должен измениться принимаемый урон
@@ -114,12 +113,12 @@ namespace AlvQuest_Editor
                     //вычисляем итоговое значение урона, который получает защищающийся персонаж
                     defenderAcceptedDamage = (defenderAcceptedDamage * DefenderDamageMultiplier + DefenderDamageSummand).Round();
                     //запускаем ивент на получение урона у защищающегося персонажа
-                    defender.TakeDamageNotification(_attackerDamageType, defenderAcceptedDamage);
+                    defender.SendTakeDamageNotification(_attackerDamageType, defenderAcceptedDamage);
                 }
                 else
                 {
                     //запускаем ивент на изменение здоровья у защищающегося персонажа
-                    defender.ChangeHp_WithNotification(-defenderAcceptedDamage);
+                    defender.ChangeHP_WithNotification(-defenderAcceptedDamage);
                 }
                 Reset();
             }

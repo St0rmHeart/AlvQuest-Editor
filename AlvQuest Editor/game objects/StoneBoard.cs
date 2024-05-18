@@ -11,37 +11,42 @@ namespace AlvQuest_Editor
         /// <para><see cref='EStoneType'/> - тип камней комбинации,</para>
         /// <para><see cref='int'/> - длина комбинации.</para>
         /// </summary>
-        public List<(EStoneType, int)> OnFieldCombinations { get; } = [];
+        public List<(EStoneType StoneType, int Lenth)> OnFieldCombinations { get; } = [];
 
         /// <summary>
-        /// Количество уничтоженных камней каждого типа во всех комбинациях.
+        /// Координаты каждого камня комбинаций.
         /// </summary>
-        public Dictionary<EStoneType, int> AmountOfCombinedStones { get; } = new Dictionary<EStoneType, int>()
+        public Dictionary<(int X, int Y), EStoneType> OnFieldCombinationsStones { get; } = [];
+
+        public Dictionary<EStoneType, int> AmountOfCombinedStones = new()
         {
-            { EStoneType.Skull, 0 },
             { EStoneType.Gold, 0 },
             { EStoneType.Experience, 0 },
             { EStoneType.FireStone, 0 },
             { EStoneType.WaterStone, 0 },
             { EStoneType.EarthStone, 0 },
             { EStoneType.AirStone, 0 },
+            { EStoneType.Skull, 0 },
         };
 
         /// <summary>
-        /// Координаты каждого камня комбинаций.
-        /// </summary>
-        public Dictionary<(int x, int y), EStoneType> OnFieldCombinationsStones { get; } = [];
-
-        /// <summary>
-        /// 
+        /// Сбрасывает все данные по комбинациям в <see cref='StoneGridData'/>.
         /// </summary>
         public void ResetData()
         {
             OnFieldCombinations.Clear();
             OnFieldCombinationsStones.Clear();
-            AmountOfCombinedStones.Clear();
+            foreach (var stoneType in AmountOfCombinedStones.Keys)
+            {
+                AmountOfCombinedStones[stoneType] = 0;
+            }
         }
     }
+
+
+
+
+
     /// <summary>
     /// Доска камней.
     /// </summary>
@@ -50,17 +55,17 @@ namespace AlvQuest_Editor
         /// <summary>
         /// Генератор случайных чисел.
         /// </summary>
-        private readonly Random Random = new();
-
-        /// <summary>
-        /// Статистические данные по текущему состояния сетки камней.
-        /// </summary>
-        StoneGridData StoneGridData { get; set; }
+        private readonly Random _random = new();
 
         /// <summary>
         /// Арена, на которой расположена доска камней.
         /// </summary>
-        Arena Arena { get; set; }
+        private readonly Arena _arena;
+
+        /// <summary>
+        /// Статистические данные по текущему состояния сетки камней.
+        /// </summary>
+        public StoneGridData StoneGridData { get; set; }
 
         /// <summary>
         /// Сетка на которой расположены камни из набора <see cref='EStoneType'/>.
@@ -77,13 +82,27 @@ namespace AlvQuest_Editor
         /// </summary>
         private Point _secondPosition;
 
+
+
+        /// <summary>
+        /// Конструктор доски камней
+        /// </summary>
+        /// <param name="arena"></param>
+        public StoneBoard(Arena arena)
+        {
+            _arena = arena;
+        }
+
+
+
         /// <summary>
         /// Установка нового стартового состояния секи камней из набора <see cref='EStoneType'/>.
         /// </summary>
-        public void ResetStoneGrid()
+        private void ResetStoneGrid()
         {
             do
             {
+                // Генерируем поле камней
                 for (int i = 0; i < AlvQuestStatic.STONE_GRID_SIZE; i++)
                 {
                     for (int j = 0; j < AlvQuestStatic.STONE_GRID_SIZE; j++)
@@ -91,7 +110,7 @@ namespace AlvQuest_Editor
                         StoneGrid[i, j] = GetNewStartStone(i, j);
                     }
                 }
-                // Если поле сгенерировалось так, что на нём нет комбинаций - генерируем заного.
+                // Если поле сгенерировалось так, что на нём нет комбинаций - генерируем заново.
             } while (!CheckCombinationCreationPossibility());
         }
 
@@ -119,7 +138,7 @@ namespace AlvQuest_Editor
         /// <returns>Тип камня.</returns>
         private EStoneType GetRandomStone()
         {
-            return (EStoneType)Random.Next(1, 8);
+            return (EStoneType)_random.Next(1, 8);
         }
 
         /// <summary>
@@ -129,22 +148,32 @@ namespace AlvQuest_Editor
         /// <param name="y">Y координата выбранного камня в сетке <see cref='StoneGrid'/>.</param>
         public void StoneClick(int x, int y)
         {
+            // Координаты новой выбранной точки
             var newPoint = new Point(x, y);
-            //
+            // Если первая точка не была выбрана.
             if (_firstPosition.X == -1)
             {
+                // Выбранная точка становится первой
                 _firstPosition = newPoint;
-            }
+            } // Если новая точка отлична от первой 
             else if (newPoint != _firstPosition)
             {
+                // Вычисляем дистанцию между камнями
                 var distance =
                     Math.Sqrt(Math.Pow(_firstPosition.X - newPoint.X, 2) + Math.Pow(_firstPosition.Y - newPoint.Y, 2));
+                //Если камни соседние 
                 if (distance == 1)
                 {
+                    // Выбранная точка становится второй и начинается процесс реагирования доски камней.
                     _secondPosition = newPoint;
                     SwapStones(_firstPosition.X, _firstPosition.Y, _secondPosition.X, _secondPosition.Y, StoneGrid);
                     ResetPoints();
-                    UpdateStoneGrid();
+                    ExecuteStoneSwappingTurn();
+                }
+                else
+                {
+                    //Выбранная точка становится новой первой
+                    _firstPosition = newPoint;
                 }
             }
         }
@@ -157,7 +186,7 @@ namespace AlvQuest_Editor
         /// <param name="x2">X координата второго камня.</param>
         /// <param name="y2">Y координата второго камня.</param>
         /// <param name="stoneGrid">Сетка, на которой расположены камни</param>
-        public static void SwapStones(int x1, int y1, int x2, int y2, EStoneType[,] stoneGrid)
+        private static void SwapStones(int x1, int y1, int x2, int y2, EStoneType[,] stoneGrid)
         {
             (stoneGrid[x1, y1], stoneGrid[x2, y2]) = (stoneGrid[x2, y2], stoneGrid[x1, y1]);
         }
@@ -165,23 +194,30 @@ namespace AlvQuest_Editor
         /// <summary>
         /// Сброс запомненных координат выбранных камней.
         /// </summary>
-        public void ResetPoints()
+        private void ResetPoints()
         {
             _firstPosition = new Point(-1, -1);
             _secondPosition = new Point(-1, -1);
         }
 
         /// <summary>
-        /// Реализация реагирования доски камней на изменения её состояния. 
+        /// Реализация хода активного игрока, когда он меняет местами два соседних камня.
         /// </summary>
-        public void UpdateStoneGrid()
+        private void ExecuteStoneSwappingTurn()
         {
+            //Вызываем событие о совершении хода путём обмена двух соседних камней активным игроком
+            _arena.ActivePlayer.SendStoneSwappingTurnNotification();
             // Пока на доске существует хотя бы одна комбинация:
-            while (TryFindStoneMatches())
+            while (TryFindStoneCombinations())
             {
-                Arena.StoneCombination(StoneGridData);
+                CheckForTurnContinuation();
+                _arena.ActivePlayer.AbsorpDestroyedStones(StoneGridData.AmountOfCombinedStones);
                 DestroyCombinedStones();
                 StonesFreeFall();
+            }
+            if (_arena.TurnSwitchModule.IsTurnEnd)
+            {
+                _arena.CompleteTurn();
             }
             if (!CheckCombinationCreationPossibility())
             {
@@ -193,7 +229,7 @@ namespace AlvQuest_Editor
         /// Пробует записать в <see cref='StoneGridData'/> все комбинации камней и координаты составляющих их камней в сетке <see cref='StoneGrid'/>.
         /// </summary>
         /// <returns><see cref="bool"/> <c>true</c>, если была записана хотя бы одна комбинация, иначе <see cref="bool"/> <c>false</c>.</returns>
-        public bool TryFindStoneMatches()
+        private bool TryFindStoneCombinations()
         {
             StoneGridData.ResetData();
             bool IsAnyMatches = false;
@@ -203,7 +239,7 @@ namespace AlvQuest_Editor
                 {
                     if (StoneGridData.OnFieldCombinationsStones.ContainsKey((i, j)))
                     {
-                        if (TryMarkHorizontalMatch(i, j) || TryMarkVerticalMatch(i, j))
+                        if (TryMarkHorizontalCombination(i, j) || TryMarkVerticalCombination(i, j))
                         {
                             IsAnyMatches = true;
                         }
@@ -219,7 +255,7 @@ namespace AlvQuest_Editor
         /// <param name="x">X координата выбранного камня в сетке <see cref='StoneGrid'/>.</param>
         /// <param name="y">Y координата выбранного камня в сетке <see cref='StoneGrid'/>.</param>
         /// <returns><see cref="bool"/> <c>true</c>, если была записана комбинация, иначе <see cref="bool"/> <c>false</c>.</returns>
-        public bool TryMarkHorizontalMatch(int x, int y)
+        private bool TryMarkHorizontalCombination(int x, int y)
         {
             EStoneType value = StoneGrid[x, y];
             int offsetX;
@@ -262,7 +298,7 @@ namespace AlvQuest_Editor
             }
             return false;
         }
-        public static bool CheckHorizontalMatch(int x, int y, EStoneType[,] stoneGrid)
+        private static bool CheckHorizontalMatch(int x, int y, EStoneType[,] stoneGrid)
         {
             EStoneType value = stoneGrid[x, y];
             int offsetX;
@@ -294,7 +330,7 @@ namespace AlvQuest_Editor
         /// <param name="x">X координата выбранного камня в сетке <see cref='StoneGrid'/>.</param>
         /// <param name="y">Y координата выбранного камня в сетке <see cref='StoneGrid'/>.</param>
         /// <returns><see cref="bool"/> <c>true</c>, если была записана комбинация, иначе <see cref="bool"/> <c>false</c>.</returns>
-        public bool TryMarkVerticalMatch(int x, int y)
+        private bool TryMarkVerticalCombination(int x, int y)
         {
             EStoneType value = StoneGrid[x, y];
             int offsetY;
@@ -326,13 +362,18 @@ namespace AlvQuest_Editor
                 //записываем координаты камней, участвующих в комбинации
                 for (int i = leftBorderY; i < rightBorderY + 1; i++)
                 {
-                    StoneGridData.OnFieldCombinationsStones.TryAdd((x, i), value);
+                    // Если данный камень успешно записан:
+                    if (StoneGridData.OnFieldCombinationsStones.TryAdd((x, i), value))
+                    {
+                        // Увеличиваем счетчик камней данного типа
+                        StoneGridData.AmountOfCombinedStones[value]++;
+                    }
                 }
                 return true;
             }
             return false;
         }
-        public static bool CheckVerticalMatch(int x, int y, EStoneType[,] stoneGrid)
+        private static bool CheckVerticalMatch(int x, int y, EStoneType[,] stoneGrid)
         {
             EStoneType value = stoneGrid[x, y];
             int offsetY;
@@ -360,10 +401,29 @@ namespace AlvQuest_Editor
             return combinationLenth > 2;
         }
 
+
+
+        /// <summary>
+        /// Реализует механику продления хода активного игрока в результате создания комбинаций.
+        /// </summary>
+        private void CheckForTurnContinuation()
+        {
+            // Если персонаж ещё не получил возможности продолжить ход
+            if (_arena.TurnSwitchModule.IsTurnEnd)
+            {
+                // Если при этом совмещение какой-либо комбинации даёт ему право продолжить хода
+                if (_arena.ActivePlayer.IsAdditionalTurnReceivedFromCombinations(StoneGridData.OnFieldCombinations))
+                {
+                    // Отменяем завершение хода
+                    _arena.TurnSwitchModule.IsTurnEnd = false;
+                }
+            }
+        }
+
         /// <summary>
         /// Помечает все камни, являющиеся элементами комбинаций, как уничтоженные.
         /// </summary>
-        public void DestroyCombinedStones()
+        private void DestroyCombinedStones()
         {
             foreach (var (x, y) in StoneGridData.OnFieldCombinationsStones.Keys)
             {
@@ -374,7 +434,7 @@ namespace AlvQuest_Editor
         /// <summary>
         /// Реализует падение камней вниз, а так же выпадение новых камней в освободившиеся верхние ячейки.
         /// </summary>
-        public void StonesFreeFall()
+        private void StonesFreeFall()
         {
             // Идём по столбцам слева на право
             for (int i = 0; i < AlvQuestStatic.STONE_GRID_SIZE; i++)
@@ -406,7 +466,7 @@ namespace AlvQuest_Editor
         /// <summary>
         /// Проверяет наличие хотя бы одного возможного хода для составления комбинации на поле.</summary>
         /// <returns><see cref="bool"/> <c>true</c>, если существует хотя бы однин ход, иначе <see cref="bool"/> <c>false</c>.</returns>
-        public bool CheckCombinationCreationPossibility()
+        private bool CheckCombinationCreationPossibility()
         {
             // Инициализируем копию сетки камней
             EStoneType[,] stoneGridCopy = new EStoneType[AlvQuestStatic.STONE_GRID_SIZE, AlvQuestStatic.STONE_GRID_SIZE];

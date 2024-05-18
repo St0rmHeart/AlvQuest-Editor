@@ -36,7 +36,7 @@ namespace AlvQuest_Editor
         }
         public void UpdateCard(CharacterSlot character)
         {
-            _nameLabel.Text = character.Character.Name;
+            /*_nameLabel.Text = character.Character.Name;
             _iconPictureBox.Image = character.Character.Icon;
             var allMana = new[]
             {
@@ -123,7 +123,7 @@ namespace AlvQuest_Editor
             _manaCountEarthLabel.Text = startMana[0].ToString("F1");
             _manaCountFireLabel.Text = startMana[1].ToString("F1");
             _manaCountAirLabel.Text = startMana[2].ToString("F1");
-            _manaCountWaterLabel.Text = startMana[3].ToString("F1");
+            _manaCountWaterLabel.Text = startMana[3].ToString("F1");*/
 
         }
         public CharacterCard()

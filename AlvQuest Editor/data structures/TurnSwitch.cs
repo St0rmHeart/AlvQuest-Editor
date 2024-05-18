@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace AlvQuest_Editor
 {
+    /// <summary>
+    /// Класс-обёртка. Переключатель, указываюищий, должен ли закончиться ход ходящего персонажа.
+    /// </summary>
     public class TurnSwitch
     {
-        public TurnSwitch() { Switcher = false; }
-        public bool Switcher { get; set; }
+        /// <summary>
+        /// Переключатель, указываюищий, должен ли закончиться ход ходящего персонажа.
+        /// </summary>
+        public bool IsTurnEnd { get; set; } = false;
     }
 }

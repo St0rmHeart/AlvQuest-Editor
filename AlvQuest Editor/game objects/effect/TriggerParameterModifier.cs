@@ -67,18 +67,6 @@
             var target = (triggerEvent.target == EPlayerType.Self) ? owner : enemy;
             switch (triggerEvent.type)
             {
-                case EEvent.StepExecution: target.StepExecution += Activation; break;
-                case EEvent.DamageEmitting: target.DamageEmitting += Activation; break;
-                case EEvent.DamageAccepting: target.DamageAccepting += Activation; break;
-                case EEvent.DamageBlocking: target.DamageBlocking += Activation; break;
-                case EEvent.DamageTaking: target.DamageTaking += Activation; break;
-                case EEvent.DeltaFireMana: target.DeltaFireMana += Activation; break;
-                case EEvent.DeltaWaterMana: target.DeltaWaterMana += Activation; break;
-                case EEvent.DeltaAirMana: target.DeltaAirMana += Activation; break;
-                case EEvent.DeltaEarthMana: target.DeltaEarthMana += Activation; break;
-                case EEvent.DeltaXP: target.DeltaXP += Activation; break;
-                case EEvent.DeltaHP: target.DeltaHP += Activation; break;
-                case EEvent.DeltaGold: target.DeltaGold += Activation; break;
                 default: throw new NotImplementedException();
             }
         }
@@ -87,18 +75,6 @@
             var target = (tickEvent.target == EPlayerType.Self) ? owner : enemy;
             switch (tickEvent.type)
             {
-                case EEvent.StepExecution: target.StepExecution += Tick; break;
-                case EEvent.DamageEmitting: target.DamageEmitting += Tick; break;
-                case EEvent.DamageAccepting: target.DamageAccepting += Tick; break;
-                case EEvent.DamageBlocking: target.DamageBlocking += Tick; break;
-                case EEvent.DamageTaking: target.DamageTaking += Tick; break;
-                case EEvent.DeltaFireMana: target.DeltaFireMana += Tick; break;
-                case EEvent.DeltaWaterMana: target.DeltaWaterMana += Tick; break;
-                case EEvent.DeltaAirMana: target.DeltaAirMana += Tick; break;
-                case EEvent.DeltaEarthMana: target.DeltaEarthMana += Tick; break;
-                case EEvent.DeltaXP: target.DeltaXP += Tick; break;
-                case EEvent.DeltaHP: target.DeltaHP += Tick; break;
-                case EEvent.DeltaGold: target.DeltaGold += Tick; break;
                 default: throw new NotImplementedException();
             }
         }
@@ -118,20 +94,17 @@
                 _counterStack++;
             }
         }
-        public void Activation(object sender, EEvent arg)
+        public void Activation(object sender, EventArgs e)
         {
-            _triggerlogicalModule.SetData(arg);
-            if (_triggerlogicalModule.Result()) Activation();
+            throw new NotImplementedException();
         }
-        public void Activation(object sender, (EEvent eEvent, EDamageType damageType, double value) arg)
+        public void Activation(object sender, (EDamageType DamageType, double Value) arg)
         {
-            _triggerlogicalModule.SetData(arg);
-            if (_triggerlogicalModule.Result()) Activation();
+            throw new NotImplementedException();
         }
-        public void Activation(object sender, (EEvent eEvent, double args) arg)
+        public void Activation(object sender, (EEvent Event, double Args) arg)
         {
-            _triggerlogicalModule.SetData(arg);
-            if (_triggerlogicalModule.Result()) Activation();
+            throw new NotImplementedException();
         }
         private void Tick()
         {

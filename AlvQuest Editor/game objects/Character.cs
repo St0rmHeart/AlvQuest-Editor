@@ -1,4 +1,6 @@
-﻿namespace AlvQuest_Editor
+﻿using System.Xml.Linq;
+
+namespace AlvQuest_Editor
 {
     /// <summary>
     /// Класс, в хором хранится вся информация, определющая персонажа
@@ -7,37 +9,51 @@
     {
         #region _____________________ПОЛЯ_____________________
 
-        //границы перехода на новый уровень
+        // Границы перехода на новый уровень
         public static readonly int[] levelBoundaries = [0, 100, 150, 250, 400, 600, 900, 1400, 2000, 2800, 3700];
-        //уровень 
-        public int Level { get; set; }
-        //накопленный опыт на уровне 
-        public int Xp { get; set; }
-        //накопленное золото
-        public int Gold { get; set; }
-        //количество очков характеристик (за каждый уровень даётся 4 очка)
-        private int _charPoints;
 
-        //базовые характеристики
-        public Dictionary<ECharacteristic, int> Characteristics { get; private set; } = [];
-        //итератор по характеристикам
+        // Уровень 
+        public int Level { get; private set; } = 1;
+        
+        // Накопленный опыт на уровне 
+        public int Xp { get; set; } = 0;
+
+        // Количество очков характеристик (за каждый уровень даётся 4 очка)
+        private int _charPoints = 0;
+
+        // Накопленное золото
+        public int Gold { get; set; } = 0;
+
+        // Базовые характеристики
+        public Dictionary<ECharacteristic, int> Characteristics { get; private set; } = new()
+        {
+            {ECharacteristic.Strength, 0},
+            {ECharacteristic.Endurance, 0},
+            {ECharacteristic.Dexterity, 0},
+            {ECharacteristic.Fire, 0},
+            {ECharacteristic.Water, 0},
+            {ECharacteristic.Air, 0},
+            {ECharacteristic.Earth, 0},
+        };
+
+        // Итератор по характеристикам
         public int this[ECharacteristic characteristic]
         {
             get { return Characteristics[characteristic]; }
-            set { Characteristics[characteristic] = value; }
         }
 
-        //используемые перки
-        //private List<Perk> usedPerks = new List<Perk>();
+        // Используемые перки
+        public List<Perk> Perks { get; private set; } = [];
 
-        //носимое снаряжение
+        // Носимое снаряжение
         public Dictionary<EBodyPart, Equipment> Equipment { get; private set; } = [];
-        //итератор по снаряжению
+
+        // Итератор по снаряжению
         public Equipment this[EBodyPart bodyPart]
         {
+            //возвращает предмет саряжения, либо null если в указанной ячейке ничего не одето
             get
             {
-                //возвращает предмет саряжения, либо null если в указанной ячейке ничего не одето
                 if (Equipment.TryGetValue(bodyPart, out Equipment value))
                 {
                     return value;
@@ -47,18 +63,15 @@
                     return null;
                 }
             }
+            //если в указанной ячейку уже что-то одето - устанавливается ссылка на новый объект снаряжения
             set
             {
-                if (!Equipment.TryAdd(bodyPart, value))
-                {
-                    //если в указанной ячейку уже что-то одето - устанавливается ссылка на новый объект снаряжения 
-                    Equipment[bodyPart] = value;
-                }
+                Equipment[bodyPart] = value;
             }
         }
 
         //используемые заклинания
-        //private List<Spell> usedSpells = new List<Spell>();
+        public List<Spell> Spells { get; private set; } = [];
         #endregion
 
         #region _____________________КОНСТРУКТОР_____________________
@@ -66,32 +79,13 @@
         /// Базовый конструктор персонажа.
         /// </summary>
         /// <param name="name">Имя персонажа</param>
-        private Character(string name)
+        private Character(string name, string description, string iconName) : base(name, description, iconName)
         {
-            Name = name;
-            Level = 1;
-            foreach (ECharacteristic characteristic in AlvQuestStatic.CHAR_DER_PAIRS.Keys)
-            {
-                Characteristics.Add(characteristic, 0);
-            }
+            
         }
         #endregion
 
         #region _____________________МЕТОДЫ_____________________
-
-        /// <summary>
-        /// Начислить персонажу опыт
-        /// </summary>
-        /// <param name="exp">количество начисляемого опыта</param>
-        public void AddExp(int exp)
-        {
-            Xp += exp;
-            while (Xp >= levelBoundaries[Level-1])
-            {
-                Level++;
-                _charPoints += 4;
-            }
-        }
 
         public override void Installation(CharacterSlot owner, CharacterSlot enemy)
         {
@@ -103,141 +97,36 @@
             throw new NotImplementedException();
         }
 
-        public override BaseGameEntity Clone()
+        public override Character Clone()
         {
             throw new NotImplementedException();
         }
 
-        public override BaseDTO GetDTO()
+        public override CharacterDTO GetDTO()
+        {
+            throw new NotImplementedException();
+        }
+        public void AddXP(int value)
         {
             throw new NotImplementedException();
         }
         #endregion
 
+
+
+
+
+
         #region СТРОИТЕЛЬ
         /// <summary>
         /// Строитель персонажа. Строитель кеширует настройки, устанавливаемые через его методы и может создавать персонажа по указанным настройкам.
         /// </summary>
-        public class CBuilder
+        public class CharacterBuilder : BaseBuilder<CharacterBuilder, Character, CharacterDTO>
         {
-            #region _____________________ПОЛЯ_____________________
-            //имя
-            private string _name;
-            //опыт
-            private int _xp;
-            //характеристики
-            private readonly Dictionary<ECharacteristic, int> _characteristics = new Dictionary<ECharacteristic, int>();
-            //снаряжение
-            private readonly Dictionary<EBodyPart, Equipment> _equipment = new Dictionary<EBodyPart, Equipment>();
-            #endregion
-
-
-
-            #region _____________________МЕТОДЫ_____________________
-            /// <summary>
-            /// Установить Имя персонажа
-            /// </summary>
-            /// <param name="name">Имя персонажа</param>
-            /// <returns></returns>
-            public CBuilder With_Name(string name)
+            protected override void ValidateAdditionalContent()
             {
-                //обработчик исключений
-                if (name == null || name == "") throw new ArgumentNullException("Не введено имя персонажа");
-
-                //
-                _name = name;
-                return this;
+                throw new NotImplementedException();
             }
-
-            /// <summary>
-            /// Установить очки опыта персонажа
-            /// </summary>
-            /// <param name="xp">Количество очков опыта</param>
-            /// <returns></returns>
-            public CBuilder With_XP(int xp)
-            {
-                //обработчик исключений
-                if (xp < 0) throw new ArgumentOutOfRangeException("Опыт не может быть отрицательным");
-
-                //
-                _xp = xp;
-                return this;
-            }
-
-            /// <summary>
-            /// Установить значение характеристики
-            /// </summary>
-            /// <param name="characteristic">характеристика</param>
-            /// <param name="value">Устанавливаемое значение</param>
-            /// <returns></returns>
-            public CBuilder With_Characteristic(ECharacteristic characteristic, int value)
-            {
-                //обработчик исключений
-                if (value < 0) throw new ArgumentOutOfRangeException("Значение характеристики не может быть отрицательным");
-                if (characteristic == ECharacteristic.None) throw new ArgumentOutOfRangeException("Недопустимое использование None.");
-
-                //
-                _characteristics[characteristic] = value;
-                return this;
-            }
-
-            /// <summary>
-            /// Установить снаряжение
-            /// </summary>
-            /// <param name="bodyPart">Ячейка снаряжения</param>
-            /// <param name="equipment">Устанавливаемяй объект снаряжения</param>
-            /// <returns></returns>
-            public CBuilder With_Equipment(EBodyPart bodyPart, Equipment equipment)
-            {
-                //обработчик исключений
-                if (bodyPart == EBodyPart.None) throw new ArgumentOutOfRangeException("Недопустимое использование None.");
-                if (equipment == null) throw new ArgumentOutOfRangeException("Не указано снаряжение");
-
-                //
-                if (!_equipment.TryAdd(bodyPart, equipment))
-                {
-                    _equipment[bodyPart] = equipment;
-                }
-
-                return this;
-            }
-
-            /// <summary>
-            /// Сборс настроек строителя в значения по умолчанию
-            /// </summary>
-            public CBuilder Reset()
-            {
-                _name = "";
-                _xp = 0;
-                _characteristics.Clear();
-                var a = AlvQuestStatic.ACCURACY_OF_CALCULATIONS;
-                var b = AlvQuestStatic.CHAR_DER_PAIRS;
-                var c = AlvQuestStatic.DERIVATIVE_SUBSCRIPTIONS;
-                foreach (ECharacteristic characteristic in AlvQuestStatic.CHAR_DER_PAIRS.Keys)
-                {
-                    _characteristics.Add(characteristic, 0);
-                }
-                _equipment.Clear();
-                return this;
-            }
-
-            /// <summary>
-            /// Создать персонажа по указанным настройкам
-            /// </summary>
-            /// <returns></returns>
-            public Character Build()
-            {
-                //обработчик исключений
-                if (_name == "") throw new ArgumentNullException("В настройках не было указано имя персонажа");
-
-                //
-                var character = new Character(_name);
-                character.AddExp(_xp);
-                character.Characteristics = new Dictionary<ECharacteristic, int>(_characteristics);
-                character.Equipment = new Dictionary<EBodyPart, Equipment>(_equipment);
-                return character;
-            }
-            #endregion
         }
         #endregion
 

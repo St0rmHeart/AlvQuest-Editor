@@ -332,7 +332,7 @@ namespace AlvQuest_Editor
                 },
 
             };
-            TEMPLATE_CHARACTER = new Character.CBuilder()
+            /*TEMPLATE_CHARACTER = new Character.CBuilder()
                .With_Name("TEMPLATE_CHARACTER")
                .With_XP(0)
                .With_Characteristic(ECharacteristic.Strength, 0)
@@ -342,7 +342,7 @@ namespace AlvQuest_Editor
                .With_Characteristic(ECharacteristic.Water, 0)
                .With_Characteristic(ECharacteristic.Air, 0)
                .With_Characteristic(ECharacteristic.Earth, 0)
-               .Build();
+               .Build();*/
         }
         public const int HASH_CONST = 16769023;
         public const int STONE_GRID_SIZE = 8;
@@ -503,14 +503,6 @@ namespace AlvQuest_Editor
             public static TriggerParameterModifier ConvertDTOtoTPM(TriggerParameterModifier.TPM_DTO dto)
             {
                 return new TriggerParameterModifier.TPM_Builder().InstallDTO(dto).BuildEntity();
-            }
-            public static LogicalModuleEffect.LME_DTO ConvertLMEtoDTO(LogicalModuleEffect lme)
-            {
-                return lme.GetDTO();
-            }
-            public static LogicalModuleEffect ConvertDTOtoLME(LogicalModuleEffect.LME_DTO dto)
-            {
-                return new LogicalModuleEffect.LMEBuilder().InstallDTO(dto).Build();
             }
         }
     }

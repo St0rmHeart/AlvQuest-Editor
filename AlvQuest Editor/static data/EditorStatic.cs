@@ -17,7 +17,7 @@ namespace AlvQuest_Editor
         static EditorStatic()
         {
             #region GameData
-            var CBuilder = new Character.CBuilder();
+            //var CBuilder = new Character.CharacterBuilder();
             var PPMBuilder = new PassiveParameterModifier.PPM_Builder();
             var TPMBuilder = new TriggerParameterModifier.TPM_Builder();
 
@@ -42,29 +42,6 @@ namespace AlvQuest_Editor
                 .SetTriggerEvent(EPlayerType.Enemy, EEvent.DamageTaking)
                 .SetTickEventt(EPlayerType.Self, EEvent.StepExecution)
                 .BuildEntity();
-
-            var sword = new Equipment.EquipmentBuilder()
-                .SetName("Древний Эльфийский Меч")
-                .SetDescription("Старинный клинок, сохранивший остроку даже спустя сотни лет")
-                .SetIcon("FireKnoghtIcon")
-                .SetBodypart(EBodyPart.Weapon)
-                .SetEffect(AlvQuestStatic.DTOConverter.ConvertPPMtoDTO(newPassiveEffect))
-                .SetEffect(AlvQuestStatic.DTOConverter.ConvertTPMtoDTO(newTriggerParameter))
-                .BuildEntity();
-            var testHero = CBuilder
-                .With_Name("Огн. Рыцарь")
-                .With_XP(1874)
-                .With_Characteristic(ECharacteristic.Strength, 55)
-                .With_Characteristic(ECharacteristic.Dexterity, 40)
-                .With_Characteristic(ECharacteristic.Endurance, 95)
-                .With_Characteristic(ECharacteristic.Fire, 175)
-                .With_Characteristic(ECharacteristic.Water, 5)
-                .With_Characteristic(ECharacteristic.Air, 80)
-                .With_Characteristic(ECharacteristic.Earth, 15)
-                .With_Equipment(sword.BodyPart, sword)
-                .Build();
-            testHero.Icon = Properties.Resources.FireKnightIcon;
-            Arena = new Arena(testHero, AlvQuestStatic.TEMPLATE_CHARACTER);
             #endregion
 
             JsonLoad();

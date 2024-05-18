@@ -50,7 +50,6 @@ namespace AlvQuest_Editor
     [JsonDerivedType(typeof(LM_CONSTANT_TRUE_DTO), typeDiscriminator: "CONSTANT_TRUE")]
     [JsonDerivedType(typeof(LM_01_deltaThreshold_DTO), typeDiscriminator: "deltaThreshold")]
     [JsonDerivedType(typeof(LM_02_damageThreshold_DTO), typeDiscriminator: "damageThreshold")]
-    [JsonDerivedType(typeof(LM_03_manaShieldTickModule_DTO), typeDiscriminator: "manaShieldTickModule")]
     public abstract class LogicalModule_DTO
     {
         public abstract LogicalModule RecreateLogicalModule();
@@ -156,108 +155,6 @@ namespace AlvQuest_Editor
         public override LogicalModule RecreateLogicalModule()
         {
             return new LM_02_damageThreshold(DamageType, Threshold);
-        }
-    }
-
-    /// <summary>
-    /// Логический модуль, реализующий магический щит и выключающий эффект, только когда щит будет разрушен.
-    /// </summary>
-    public class LM_03_manaShieldTickModule : LogicalModule
-    {
-        private readonly ECharacteristic _element;
-        private readonly double _costOfMaintenance; 
-        private readonly Dictionary<EDamageType, double> _damageMultipliers = new Dictionary<EDamageType, double>();
-
-        /// <param name="element">Элемен магического щита, соответвующий одному из 4х элементов маны.</param>
-        /// <param name="costOfMaintenance">Стоимость поддержания щита каждый ход.</param>
-        /// <param name="physicalDamageMultiplier"></param>
-        /// <param name="fireDamageMultiplier"></param>
-        /// <param name="waterDamageMultiplier"></param>
-        /// <param name="airDamageMultiplier"></param>
-        /// <param name="earthDamageMultiplier"></param>
-        public LM_03_manaShieldTickModule(
-            ECharacteristic element,
-            double costOfMaintenance,
-            double physicalDamageMultiplier = 1,
-            double fireDamageMultiplier = 1,
-            double waterDamageMultiplier = 1,
-            double airDamageMultiplier = 1,
-            double earthDamageMultiplier = 1)
-        {
-            if(element != ECharacteristic.Fire &&
-                element != ECharacteristic.Water &&
-                element != ECharacteristic.Earth &&
-                element != ECharacteristic.Air)
-            {
-                throw new ArgumentException("Невозможный элемент щита.");
-            }
-            if(costOfMaintenance <= 0) throw new ArgumentException("costOfMaintenance должен быть больше 0");
-            _element = element;
-            _costOfMaintenance = costOfMaintenance;
-            _damageMultipliers.Add(EDamageType.PhysicalDamage, physicalDamageMultiplier);
-            _damageMultipliers.Add(EDamageType.FireDamage, fireDamageMultiplier);
-            _damageMultipliers.Add(EDamageType.WaterDamage, waterDamageMultiplier);
-            _damageMultipliers.Add(EDamageType.AirDamage, airDamageMultiplier);
-            _damageMultipliers.Add(EDamageType.EarthDamage, earthDamageMultiplier);
-        }
-        public LM_03_manaShieldTickModule(
-            ECharacteristic element,
-            double costOfMaintenance,
-            Dictionary<EDamageType, double> damageMultipliers)
-        {
-            _element = element;
-            _costOfMaintenance = costOfMaintenance;
-            _damageMultipliers = new Dictionary<EDamageType, double>(damageMultipliers);
-        }
-        public override bool Result()
-        {
-            if (_simpleData != null)
-            {
-                var actualСhange = _owner.ChangeMp(_element, -_costOfMaintenance);
-                return actualСhange != -_costOfMaintenance;
-            }
-            else if (_damageData != null)
-            {
-                var incomingToShieldDamage = _damageData.Value.value * _damageMultipliers[_damageData.Value.damageType];
-                var absorbedByShieldShieldDamage = -_owner.ChangeMp(_element, -incomingToShieldDamage);
-                var damageModule = _owner.DamageModule;
-                damageModule.DefenderDamageMultiplier = 0;
-                if (absorbedByShieldShieldDamage == incomingToShieldDamage)
-                {
-                    return false;
-                }
-                else
-                {
-                    damageModule.DefenderDamageSummand += incomingToShieldDamage - absorbedByShieldShieldDamage;
-                    return true;
-                }
-            }
-            else throw new Exception("КАК?");
-        }
-        public override LogicalModule Clone()
-        {
-            return new LM_03_manaShieldTickModule(_element, _costOfMaintenance, _damageMultipliers);
-        }
-        public override LogicalModule_DTO GetDTO()
-        {
-            var dto = new LM_03_manaShieldTickModule_DTO
-            {
-                Element = _element,
-                CostOfMaintenance = _costOfMaintenance,
-                DamageMultipliers = new Dictionary<EDamageType, double>(_damageMultipliers)
-            };
-            return dto;
-        }
-    }
-    public class LM_03_manaShieldTickModule_DTO : LogicalModule_DTO
-    {
-        public ECharacteristic Element { get; set; }
-        public double CostOfMaintenance { get; set; }
-        public Dictionary<EDamageType, double> DamageMultipliers { get; set; }
-        public LM_03_manaShieldTickModule_DTO() { }
-        public override LogicalModule RecreateLogicalModule()
-        {
-            return new LM_03_manaShieldTickModule(Element, CostOfMaintenance, new Dictionary<EDamageType, double>(DamageMultipliers));
         }
     }
 }

@@ -12,83 +12,394 @@ namespace AlvQuest_Editor
     /// </summary>
     public class CharacterSlot
     {
-        #region STATIC
-        //Бонусны за совмещение 3/4/5 камней одного типа в ряд
-        private static readonly double[] combinationMultiplier = { 1.0f, 1.3f, 1.8f };
+        #region EVENT - события для отслеживания изменений персонажа
+        /// <summary>
+        /// Срабатывает, когда персонаж любым способом создает на доске комбинацию из 3-5 камней в ряд.
+        /// <br />
+        /// <br /><see cref="EStoneType"/> <c>stoneType</c> - тип скомбинированных камней;
+        /// <br /><see cref="int"/> <c>count</c> - количество камней в комбинации.  
+        /// </summary>
+        public event EventHandler<(EStoneType StoneType, int Count)> StoneCombining;
+
+
+
+        /// <summary>
+        /// Срабатывает, когда персонаж любым способом уничтожает на доске камни какого-либо типа.
+        /// <br />
+        /// <br /><see cref="EStoneType"/> <c>stoneType</c> - тип уничтоженных камней;
+        /// <br /><see cref="int"/> <c>count</c> - количество уничтоженных камней.  
+        /// </summary>
+        public event EventHandler<(EStoneType StoneType, int Count)> StoneDestruction;
+
+
+
+        /// <summary>
+        /// Срабатывает, когда персонаж поглощает камни и получает эффект их поглощения с учетом параметра TerminationMult.
+        /// <br />
+        /// <br /><see cref="EStoneType"/> <c>stoneType</c> - тип поглощенных камней;
+        /// <br /><see cref="double"/> <c>value</c> - величина эффекта поглощенных камней. 
+        /// </summary>
+        public event EventHandler<(EStoneType StoneType, double Value)> StoneAbsorption;
+
+
+
+        /// <summary>
+        /// Срабатывает при использовании персонажем любого заклинания.
+        /// </summary>
+        public event EventHandler SpellCasting;
+
+
+
+        /// <summary>
+        /// Срабатывает при перемещении персонажем двух соседних камней.
+        /// </summary>
+        public event EventHandler StoneSwap;
+
+
+
+        /// <summary>
+        /// Срабатывает при использовании любого заклинания или перемещении камней на доске.
+        /// </summary>
+        public event EventHandler ActionExecution;
+
+
+
+        /// <summary>
+        /// Срабатывает когда ход персонажа завершается.
+        /// </summary>
+        public event EventHandler TurnExecution;
+
+
+
+        /// <summary>
+        /// Срабатывает когда здоровье персонажа опускается до нуля.
+        /// </summary>
+        public event EventHandler Death;
+
+
+
+        /// <summary>
+        /// Срабатывает когда персонаж испускает урон.
+        /// <br />
+        /// <br /><see cref="EDamageType"/> <c>damageType </c> - тип испускаемого урона;
+        /// <br /><see cref="double"/> <c>value</c> - величина урона. 
+        /// </summary>
+        public event EventHandler<(EDamageType DamageType, double Value)> DamageEmitting;
+
+
+
+        /// <summary>
+        /// Срабатывает когда персонаж принимает урон.
+        /// <br />
+        /// <br /><see cref="EDamageType"/> <c>damageType </c> - тип принимаемого урона;
+        /// <br /><see cref="double"/> <c>value</c> - величина урона. 
+        /// </summary>
+        public event EventHandler<(EDamageType DamageType, double Value)> DamageAccepting;
+
+
+
+        /// <summary>
+        /// Срабатывает когда персонаж блокирует урон.
+        /// <br />
+        /// <br /><see cref="EDamageType"/> <c>damageType </c> - тип блокируемого урона;
+        /// <br /><see cref="double"/> <c>value</c> - величина урона. 
+        /// </summary>
+        public event EventHandler<(EDamageType DamageType, double Value)> DamageBlocking;
+
+
+
+        /// <summary>
+        /// Срабатывает когда персонаж получает урон.
+        /// <br />
+        /// <br /><see cref="EDamageType"/> <c>damageType </c> - тип получаемого урона;
+        /// <br /><see cref="double"/> <c>value</c> - величина урона. 
+        /// </summary>
+        public event EventHandler<(EDamageType DamageType, double Value)> DamageTaking;
+
+
+
+        /// <summary>
+        /// Срабатывает когда у персонажа меняется количество опыта.
+        /// <br />
+        /// <br /><see cref="double"/> <c>value</c> - величина изменения.
+        /// </summary>
+        public event EventHandler<double> DeltaXP;
+
+
+
+        /// <summary>
+        /// Срабатывает когда у персонажа меняется количество здоровья.
+        /// <br />
+        /// <br /><see cref="double"/> <c>value</c> - величина изменения.
+        /// </summary>
+        public event EventHandler<double> DeltaHP;
+
+
+
+        /// <summary>
+        /// Срабатывает когда у персонажа меняется количество золота.
+        /// <br />
+        /// <br /><see cref="double"/> <c>value</c> - величина изменения.
+        /// </summary>
+        public event EventHandler<double> DeltaGold;
+
+
+
+        /// <summary>
+        /// Срабатывает когда у персонажа меняется количество какой-либо маны.
+        /// <br />
+        /// <br /><see cref="EManaType"/> <c>manaType</c> - тип изменяемой маны.
+        /// <br /><see cref="double"/> <c>value</c> - величина изменения.
+        /// </summary>
+        public event EventHandler<(EManaType ManaType, double Value)> DeltaMP;
+        #endregion 
+
+        #region EVENT INVOKE - методы вызова событий.
+        /// <summary>
+        /// Вызов события <see cref="StoneCombining"/>
+        /// <br /> Срабатывает, когда персонаж любым способом создает на доске комбинацию из 3-5 камней в ряд.
+        /// </summary>
+        /// <param name="stoneType"> Тип скомбинированных камней </param>
+        /// <param name="count"> Количество камней в комбинации</param>
+        private void InvokeStoneCombining(EStoneType stoneType, int count)
+        {
+            StoneCombining?.Invoke(this,(stoneType, count));
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="StoneDestruction"/>
+        /// <br /> Срабатывает, когда персонаж любым способом уничтожает на доске камни какого-либо типа.
+        /// </summary>
+        /// <param name="stoneType"> Тип уничтоженных камней </param>
+        /// <param name="count"> Количество уничтоженных камней </param>
+        private void InvokeStoneDestruction(EStoneType stoneType, int count)
+        {
+            StoneDestruction?.Invoke(this, (stoneType, count));
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="StoneAbsorption"/>
+        /// <br /> Срабатывает, когда персонаж поглощает камни и получает эффект их поглощения с учетом параметра TerminationMult.
+        /// </summary>
+        /// <param name="stoneType"> Тип поглощенных камней </param>
+        /// <param name="value"> Количество поглощенных камней </param>
+        private void InvokeStoneAbsorption(EStoneType stoneType, double value)
+        {
+            StoneAbsorption?.Invoke(this, (stoneType, value));
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="SpellCasting"/>
+        /// <br /> Срабатывает при использовании персонажем любого заклинания.
+        /// </summary>
+        private void InvokeSpellCasting()
+        {
+            InvokeActionExecution();
+            SpellCasting?.Invoke(this, EventArgs.Empty);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="StoneSwap"/>
+        /// <br /> Срабатывает при перемещении персонажем двух соседних камней.
+        /// </summary>
+        private void InvokeStoneSwapping()
+        {
+            InvokeActionExecution();
+            StoneSwap?.Invoke(this, EventArgs.Empty);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="ActionExecution"/>
+        /// <br /> Срабатывает при использовании любого заклинания или перемещении камней на доске.
+        /// </summary>
+        private void InvokeActionExecution()
+        {
+            ActionExecution?.Invoke(this, EventArgs.Empty);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="TurnExecution"/>
+        /// <br /> Срабатывает когда ход персонажа завершается.
+        /// </summary>
+        private void InvokeTurnExecution()
+        {
+            TurnExecution?.Invoke(this, EventArgs.Empty);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="Death"/>
+        /// <br /> Срабатывает когда здоровье персонажа опускается до нуля.
+        /// </summary>
+        private void InvokeDeath()
+        {
+            Death?.Invoke(this, EventArgs.Empty);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DamageEmitting"/>
+        /// <br /> Срабатывает когда персонаж испускает урон.
+        /// </summary>
+        /// <param name="damageType"> Тип испускаемого урона </param>
+        /// <param name="value"> Величина урона </param>
+        private void InvokeDamageEmitting(EDamageType damageType, double value)
+        {
+            DamageEmitting?.Invoke(this, (damageType, value));
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DamageAccepting"/>
+        /// <br /> Срабатывает когда персонаж принимает урон.
+        /// </summary>
+        /// <param name="damageType"> Тип принимаемого урона </param>
+        /// <param name="value"> Величина урона </param>
+        private void InvokeDamageAccepting(EDamageType damageType, double value)
+        {
+            DamageAccepting?.Invoke(this, (damageType, value));
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DamageBlocking"/>
+        /// <br /> Срабатывает когда персонаж блокирует урон.
+        /// </summary>
+        /// <param name="damageType"> Тип блокируемого урона </param>
+        /// <param name="value"> Величина урона </param>
+        private void InvokeDamageBlocking(EDamageType damageType, double value)
+        {
+            DamageBlocking?.Invoke(this, (damageType, value));
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DamageTaking"/>
+        /// <br /> Срабатывает когда персонаж принимает урон.
+        /// </summary>
+        /// <param name="damageType"> Тип получаемого урона </param>
+        /// <param name="value"> Величина урона </param>
+        private void InvokeDamageTaking(EDamageType damageType, double value)
+        {
+            DamageTaking?.Invoke(this, (damageType, value));
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DeltaXP"/>
+        /// <br /> Срабатывает когда у персонажа меняется количество опыта.
+        /// </summary>
+        /// <param name="value"> Величина изменения </param>
+        private void InvokeDeltaXP(double value)
+        {
+            DeltaXP?.Invoke(this, value);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DeltaHP"/>
+        /// <br /> Срабатывает когда у персонажа меняется количество здоровья.
+        /// </summary>
+        /// <param name="value"> Величина изменения </param>
+        private void InvokeDeltaHP(double value)
+        {
+            DeltaHP?.Invoke(this, value);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DeltaGold"/>
+        /// <br /> Срабатывает когда у персонажа меняется количество золота.
+        /// </summary>
+        /// <param name="value"> Величина изменения </param>
+        private void InvokeDeltaGold(double value)
+        {
+            DeltaGold?.Invoke(this, value);
+        }
+
+
+
+        /// <summary>
+        /// Вызов события <see cref="DeltaAnyMana"/>
+        /// <br /> Срабатывает когда у персонажа меняется количество какой-либо маны.
+        /// </summary>
+        /// <param name="value"> Величина изменения </param>
+        private void InvokeDeltaMana(EManaType manatype, double value)
+        {
+            DeltaMP?.Invoke(this, (manatype, value));
+        }
         #endregion
 
-        #region EVENT
-        //Событие о завершении хода владельцем
-        public event EventHandler<EEvent> StepExecution;
-
-        //Событие о гибели владельца
-        public event EventHandler<EEvent> Death;
-
-
-
-        //Событие об ипускании владельцем value едениц EDamageType урона
-        public event EventHandler<(EEvent name, EDamageType damageType, double value)> DamageEmitting;
-
-        //Событие о принятии владельцем value едениц EDamageType урона
-        public event EventHandler<(EEvent name, EDamageType damageType, double value)> DamageAccepting;
-
-        //Событие о блокировании владельцем value едениц EDamageType урона
-        public event EventHandler<(EEvent name, EDamageType damageType, double value)> DamageBlocking;
-
-        //Событие о получении владельцем value едениц EDamageType урона
-        public event EventHandler<(EEvent name, EDamageType damageType, double value)> DamageTaking;
-
-        //Событие о изменении количества очков опыта у владельца
-        public event EventHandler<(EEvent name, double value)> DeltaXP;
-
-        //Событие о изменении количества очков здоровья у владельца 
-        public event EventHandler<(EEvent name, double value)> DeltaHP;
-
-        //Событие о изменении количества золота у владельца 
-        public event EventHandler<(EEvent name, double value)> DeltaGold;
+        #region ПОЛЯ
+        /// <summary>
+        /// Генератор случайных чисел.
+        /// </summary>
+        private readonly Random _random = new();
 
 
 
-        //Событие о изменении количества маны огня у владельца 
-        public event EventHandler<(EEvent name, double value)> DeltaFireMana;
-
-        //Событие о изменении количества маны воды у владельца 
-        public event EventHandler<(EEvent name, double value)> DeltaWaterMana;
-
-        //Событие о изменении количества маны воздуха у владельца 
-        public event EventHandler<(EEvent name, double value)> DeltaAirMana;
-
-        //Событие о изменении количества маны земли у владельца 
-        public event EventHandler<(EEvent name, double value)> DeltaEarthMana;
-        #endregion
-
-        #region _________________________ПОЛЯ_________________________
-        //модуль для получения случайных значений
-        private readonly Random RandomModule = new Random();
-
-
-        //ссылка на переключатель хода
+        /// <summary>
+        /// Флажок - переключатель хода
+        /// </summary>
         public TurnSwitch TurnSwitcherModule { get; set; }
 
 
-        //ссылка на модуль боевой системы, через который персонаж наносит и плучает урон
+
+        /// <summary>
+        /// Модуль боевой системы, через который персонажи наносят и плучают урон
+        /// </summary>
         public DamageModule DamageModule { get; set; }
 
+        /// <summary>
+        /// Доска камней
+        /// </summary>
+        public StoneBoard StoneBoard { get; set; }
 
-        //ccылка на текущего оппонента в сражении
+
+        /// <summary>
+        /// Сcылка на текущего оппонента в сражении
+        /// </summary>
         public CharacterSlot CurrentOpponent { get; set; }
 
 
-        //персонаж - владелец
+        /// <summary>
+        /// Персонаж, представляемый данным <see cref="CharacterSlot"/>
+        /// </summary>
         public Character Character { get; private set; }
 
 
-        //различные динамически высчитываемые параетры персонажа
+    
+        /// <summary>
+        /// Массив параметров персонажа
+        /// </summary>
         public DerivativesEnumeration Data { get; private set; }
         #endregion
 
         #region ______________________КОНСТРУКТОР______________________
-        /// <param name="character">Устанавливаемый персонаж</param>
+        /// <summary>
+        /// Стандартный конструктор <see cref="CharacterSlot"/>.
+        /// </summary>
+        /// <param name="character"></param>
         public CharacterSlot(Character character)
         {
             //установка персонажа
@@ -100,7 +411,9 @@ namespace AlvQuest_Editor
         #endregion
 
         #region ______________________СВОЙСТВА______________________
-        //Здоровье персонажа
+        /// <summary>
+        /// Количество здоровья персонажа. 
+        /// </summary>
         public double Health
         {
             get
@@ -120,7 +433,10 @@ namespace AlvQuest_Editor
         }
 
 
-        //Опыт персонажа
+
+        /// <summary>
+        /// Количество опыта персонажа.
+        /// </summary>
         public int Xp
         {
             get { return Character.Xp; }
@@ -128,7 +444,10 @@ namespace AlvQuest_Editor
         }
 
 
-        //Золото персонажа
+
+        /// <summary>
+        /// Количество опыта персонажа.
+        /// </summary>
         public int Gold
         {
             get { return Character.Gold; }
@@ -136,7 +455,10 @@ namespace AlvQuest_Editor
         }
 
 
-        //Мана огня персонажа
+
+        /// <summary>
+        /// Количество маны огня персонажа.
+        /// </summary>
         public double ManaFire
         {
             get
@@ -156,7 +478,10 @@ namespace AlvQuest_Editor
         }
 
 
-        //Мана воды персонажа
+
+        /// <summary>
+        /// Количество маны воды персонажа.
+        /// </summary>
         public double ManaWater
         {
             get
@@ -176,7 +501,10 @@ namespace AlvQuest_Editor
         }
 
 
-        //Мана земли персонажа
+
+        /// <summary>
+        /// Количество маны земли персонажа.
+        /// </summary>
         public double ManaEarth
         {
             get
@@ -196,7 +524,10 @@ namespace AlvQuest_Editor
         }
 
 
-        //Мана воздуха персонажа
+
+        /// <summary>
+        /// Количество маны воздуха персонажа.
+        /// </summary>
         public double ManaAir
         {
             get
@@ -216,8 +547,11 @@ namespace AlvQuest_Editor
         }
 
 
-        //Имя персонажа
-        public string GetName
+
+        /// <summary>
+        /// Имя персонажа.
+        /// </summary>
+        public string Name
         {
             get { return Character.Name; }
         }
@@ -225,87 +559,124 @@ namespace AlvQuest_Editor
 
         #region _____________________МЕТОДЫ_____________________
         /// <summary>
-        /// Завершить ход и вызвать событие о завершении хода.
+        /// Вычисляет, получает ли персонаж право продолжить ход в результате создания комбинаций на доске камней.
         /// </summary>
-        public void CompleteStep()
+        /// <param name="stoneGridData"> Состояние доски камней </param>
+        /// <returns><see cref="bool"/> <c>true</c>, если персонаж создал комбинацию 4 или 5 в ряд или сработал шанс доп. хода, иначе <see cref="bool"/> <c>false</c>.</returns>
+        public bool IsAdditionalTurnReceivedFromCombinations(List<(EStoneType StoneType, int Lenth)> onFieldCombinations)
         {
-            StepExecution?.Invoke(this, EEvent.StepExecution);
+            // Разбираем каждую комбинацию на доске
+            foreach (var combination in onFieldCombinations)
+            {
+                InvokeStoneCombining(combination.StoneType, combination.Lenth);
+                // Комбинации 4 и 5 в ряд продлевают ход гарантированно
+                if(combination.Lenth > 3)
+                {
+                    return true;
+                }
+
+                // Рассматриваем комбинацию из трёх камней
+                var characteristic = (ECharacteristic)combination.StoneType;
+                var addTurnChance = Data[characteristic][EDerivative.AddTurnChance].FinalValue;
+
+                if (addTurnChance > _random.NextDouble())
+                {
+                    return true;
+                }
+            }
+            return false;
         }
+
+
 
         /// <summary>
-        /// Обработать совмещение персонажем комбинации камней.
+        /// Реализует все эффекты поглощения набора уничтоженных камней
         /// </summary>
-        /// <param name="stoneType">Тип скомбинированных камней.</param>
-        /// <param name="amount">Количество скомбинированных камней: от 3 до 5.</param>
-        public void StoneCombination(EStoneType stoneType, int amount)
+        /// <param name="stoneGridData"></param>
+        public void AbsorpDestroyedStones(Dictionary<EStoneType, int> combinedStones)
         {
-            //обработчик исключений
-            if (stoneType == EStoneType.None) throw new ArgumentOutOfRangeException("Недопустимое использование None.");
-            if (amount < 3 || amount > 5) throw new ArgumentOutOfRangeException("amount мне диапазона от 3 до 5.");
-
-            //достаём нужные коэффициенты
-            var referenceCharacteristic = (ECharacteristic)stoneType;
-            double currentAddTurnChance = Data[referenceCharacteristic][EDerivative.AddTurnChance].FinalValue;
-
-            //проверка на то, нужно ли завершить ход
-            TurnSwitcherModule.Switcher = false;
-            if (amount < 4 && currentAddTurnChance < RandomModule.NextDouble())
+            foreach (var stoneGroup in combinedStones)
             {
-                TurnSwitcherModule.Switcher = true;
+                EStoneType stoneGroupType = stoneGroup.Key;
+                int stoneGroupAmount = stoneGroup.Value;
+
+                InvokeStoneDestruction(stoneGroupType, stoneGroupAmount);
+
+                var characteristic = (ECharacteristic)stoneGroupType;
+                var terminationMult = Data[characteristic][EDerivative.TerminationMult].FinalValue;
+                var absobtionResult = (stoneGroupAmount * terminationMult).Round();
+
+                switch (stoneGroupType)
+                {
+                    case EStoneType.Skull:
+                        DamageModule.AddAttack(this, CurrentOpponent, EDamageType.PhysicalDamage, absobtionResult, true, true, true);
+                        break;
+
+                    case EStoneType.Gold:
+                        ChangeGold_WithNotification(absobtionResult);
+                        break;
+
+                    case EStoneType.Experience:
+                        ChangeXP_WithNotification(absobtionResult);
+                        break;
+
+                    case EStoneType.FireStone:
+                    case EStoneType.WaterStone:
+                    case EStoneType.EarthStone:
+                    case EStoneType.AirStone:
+                        var manaType = (EManaType)stoneGroupType;
+                        ChangeMP_WithNotification(manaType, absobtionResult);
+                        break;
+                }
+
+                InvokeStoneAbsorption(stoneGroupType, absobtionResult);
             }
-            //начисления бонуса за 4 или 5 камней
-            double combinationResult = amount * combinationMultiplier[amount - 3];
-            //поглощение камней и получение эффекта поглощения
-            StoneAbsorption(stoneType, combinationResult);
         }
+
+
 
         /// <summary>
-        /// Обработать поглощение персонажем камней.
+        /// Обработать изменение очков здоровья у персонажа.
         /// </summary>
-        /// <param name="stoneType">Тип поглощаемых камней.</param>
-        /// <param name="amount">Количество поглощаемых камней.</param>
-        public void StoneAbsorption(EStoneType stoneType, double amount)
+        /// <param name="delta">Значение, на которое нужно изменить очки опыта.</param>
+        /// <returns>Фактическое измененеие очков здоровья.</returns>
+        public double ChangeHP(double delta)
         {
-            //обработчик исключений
-            if (stoneType == EStoneType.None) throw new ArgumentOutOfRangeException("Недопустимое использование None.");
-            if (amount <= 0) new ArgumentOutOfRangeException("Количество поглощаемых камней не может быть меньше еденицы.");
+            double maxHP = Data[ECharacteristic.Endurance][EDerivative.MaxHealth].FinalValue;
+            double currentHP = Health;
 
-            //связанная с камнем характеристика
-            var referenceCharacteristic = (ECharacteristic)stoneType;
-
-            //множитель эффекта поглощения камней
-            double currentTerminationMultiplier = Data[referenceCharacteristic][EDerivative.TerminationMult].FinalValue;
-
-            //результат поглощения
-            double absorptionResult = amount * currentTerminationMultiplier;
-
-            //в зависимости от типа поглощенного камня вызываем соответствующую реакцию у версонажа с уведомлением
-            switch (stoneType)
+            if (maxHP == currentHP && delta > 0)
             {
-                case EStoneType.Skull:
-                    DamageModule.AddAttack(this, CurrentOpponent, EDamageType.PhysicalDamage, absorptionResult, true, true, true);
-                    break;
-                case EStoneType.Gold:
-                    ChangeGold_WithNotification(absorptionResult);
-                    break;
-                case EStoneType.Experience:
-                    ChangeXp_WithNotification(absorptionResult);
-                    break;
-                case EStoneType.FireStone:
-                case EStoneType.WaterStone:
-                case EStoneType.EarthStone:
-                case EStoneType.AirStone:
-                    ChangeMp_WithNotification(referenceCharacteristic, absorptionResult);
-                    break;
+                return 0;
+            }
+
+            double newHp = (currentHP + delta).Round();
+
+            if (newHp > maxHP)
+            {
+                Health = maxHP;
+                return (maxHP - currentHP).Round();
+            }
+            else if (newHp < 0)
+            {
+                Health = 0;
+                return -currentHP;
+            }
+            else
+            {
+                Health = newHp;
+                return delta;
             }
         }
+
+
 
         /// <summary>
         /// Обработать изменение опыта у персонажа.
         /// </summary>
         /// <param name="value">Значение, на которое нужно изменить опыт.</param>
         /// <returns>Фактическое изменение опыта.</returns>
-        public int ChangeXp(double value)
+        public int ChangeXP(double value)
         {
             int currentLevel = Character.Level;
             int currentMinimum = Character.levelBoundaries[currentLevel - 2];
@@ -319,23 +690,12 @@ namespace AlvQuest_Editor
             }
             else
             {
-                Character.AddExp(delta);
+                Character.Xp+=delta;
                 return delta;
             }
         }
 
-        /// <summary>
-        /// Обработать изменение очков опыта у персонажа и вызвать уведомление с фактическим значением изменения.
-        /// </summary>
-        /// <param name="value">Значение, на которое нужно изменить очки опыта.</param>
-        public void ChangeXp_WithNotification(double value)
-        {
-            int result = ChangeXp(value);
-            if (result != 0)
-            {
-                DeltaXP?.Invoke(this, (EEvent.DeltaXP, result));
-            }
-        }
+
 
         /// <summary>
         /// Обработать изменение золота у персонажа.
@@ -359,18 +719,7 @@ namespace AlvQuest_Editor
             }
         }
 
-        /// <summary>
-        /// Обработать изменение золота у персонажа и вызвать уведомление с фактическим значением изменения.
-        /// </summary>
-        /// <param name="value">Значение, на которое нужно изменить золото.</param>
-        public void ChangeGold_WithNotification(double value)
-        {
-            int result = ChangeGold(value);
-            if (result != 0)
-            {
-                DeltaGold?.Invoke(this, (EEvent.DeltaGold, result));
-            }
-        }
+
 
         /// <summary>
         /// Обработать изменение маны определённого типа у персонажа.
@@ -378,151 +727,185 @@ namespace AlvQuest_Editor
         /// <param name="characteristic">Характеристика мастерства стихии.</param>
         /// <param name="delta">На сколько нужно попытаться изменить количество маны.</param>
         /// <returns>Фактическое измененеие маны</returns>
-        public double ChangeMp(ECharacteristic characteristic, double delta)
+        public double ChangeMP(EManaType manaType, double delta)
         {
-            //Обработчик исключений
-            if (!(characteristic == ECharacteristic.Fire ||
-                characteristic == ECharacteristic.Water ||
-                characteristic == ECharacteristic.Earth ||
-                characteristic == ECharacteristic.Air))
-                throw new ArgumentOutOfRangeException("Передана некорректная характеристика");
-            if (Data[characteristic][EDerivative.CurrentMana] is not CurrentCommonParameter curent)
-                throw new InvalidOperationException("Некорректный класс по адресу.");
+            // Связанная с данным типом маны характеристика
+            var characteristic = (ECharacteristic)manaType;
 
-            //максимально допустимое количество маны
+            // Параметр, хранящий данную ману
+            var currentParameter = Data[characteristic][EDerivative.CurrentMana] as CurrentCommonParameter;
+
+            // Текущее количество маны
+            double currentMana = currentParameter.CurrentValue;
+
+            // Максимально допустимое количество маны
             double maxMana = Data[characteristic][EDerivative.MaxMana].FinalValue;
 
-            //текущее значение маны
-            double oldMana = curent.CurrentValue;
+            // Обработка ситуаций, когда изменение количества маны невозможно
+            if ((maxMana == currentMana && delta > 0) || (currentMana == 0 && delta < 0))
+            {
+                return 0;
+            }
 
-            //обработка ситуаций, когда изменение количества маны невозможно
-            if ((maxMana == oldMana && delta > 0) || (oldMana == 0 && delta < 0)) { return 0; }
+            // В иных случаях - вычисляем, насколько изменился запас маны
+            double newMana = (currentMana + delta).Round();
 
-            //в иных случаях - вычисляем, насколько изменился запас маны
-            double newMana = oldMana + delta;
-
-            // Устанавливаем CurrentMana в MaxMana, если новое значение больше MaxMana
+            // Устанавливаем максимум, если новое значение больше MaxMana
             if (newMana > maxMana)
             {
-                curent.CurrentValue = maxMana;
-                return maxMana - oldMana;
+                currentParameter.CurrentValue = maxMana;
+                return (maxMana - currentMana).Round();
             }
             // Устанавливаем CurrentMana в 0, если новое значение меньше 0
             else if (newMana < 0)
             {
-                curent.CurrentValue = 0;
-                return -oldMana;
+                currentParameter.CurrentValue = 0;
+                return -currentMana;
             }
             // В остальных случаях устанавливаем CurrentMana равным newMana
             else
             {
-                curent.CurrentValue = newMana;
+                currentParameter.CurrentValue = newMana;
                 return delta;
             }
         }
+
+
+
+        /// <summary>
+        /// Обработать изменение золота у персонажа и вызвать уведомление с фактическим значением изменения.
+        /// </summary>
+        /// <param name="value">Значение, на которое нужно изменить золото.</param>
+        public void ChangeGold_WithNotification(double value)
+        {
+            int actualDelta = ChangeGold(value);
+            if (actualDelta != 0)
+            {
+                InvokeDeltaGold(actualDelta);
+            }
+        }
+
+
 
         /// <summary>
         /// Обработать изменение маны определённого типа у персонажа и вызвать уведомление с фактическим значением изменения.
         /// </summary>
         /// <param name="characteristic">Характеристика мастерства стихии.</param>
         /// <param name="delta">На сколько нужно попытаться изменить количество маны.</param>
-        public void ChangeMp_WithNotification(ECharacteristic characteristic, double delta)
+        public void ChangeMP_WithNotification(EManaType manaType, double delta)
         {
-            double result = ChangeMp(characteristic, delta);
-            if (result != 0)
-                switch (characteristic)
-                {
-                    case ECharacteristic.Fire: DeltaFireMana?.Invoke(this, (EEvent.DeltaFireMana, result)); break;
-                    case ECharacteristic.Water: DeltaWaterMana?.Invoke(this, (EEvent.DeltaWaterMana, result)); break;
-                    case ECharacteristic.Earth: DeltaEarthMana?.Invoke(this, (EEvent.DeltaEarthMana, result)); break;
-                    case ECharacteristic.Air: DeltaAirMana?.Invoke(this, (EEvent.DeltaAirMana, result)); break;
-                }
+            double actualDelta = ChangeMP(manaType, delta);
+            if (actualDelta != 0)
+            {
+                InvokeDeltaMana(manaType, actualDelta);
+            }
         }
+
+
 
         /// <summary>
-        /// Обработать изменение очков здоровья у персонажа.
+        /// Обработать изменение очков опыта у персонажа и вызвать уведомление с фактическим значением изменения, если оно было.
         /// </summary>
-        /// <param name="delta">Значение, на которое нужно изменить очки опыта.</param>
-        /// <returns>Фактическое измененеие очков здоровья.</returns>
-        public double ChangeHp(double delta)
+        /// <param name="value">Значение, на которое нужно изменить очки опыта.</param>
+        public void ChangeXP_WithNotification(double value)
         {
-            double maxHp = Data[ECharacteristic.Endurance][EDerivative.MaxHealth].FinalValue;
-            double oldHp = Health;
-            if (maxHp == oldHp && delta > 0) { return 0; }
-            double newHp = oldHp + delta;
-
-            if (newHp > maxHp)
+            int actualDelta = ChangeXP(value);
+            if (actualDelta != 0)
             {
-                Health = maxHp;
-                return maxHp - oldHp;
-            }
-            else if (newHp < 0)
-            {
-                Health = 0;
-                Death?.Invoke(this, EEvent.Death);
-                return 0;
-            }
-            else
-            {
-                Health = newHp;
-                return delta;
+                InvokeDeltaXP(actualDelta);
             }
         }
+
+
 
         /// <summary>
         /// Обработать изменение очков здоровья у персонажа и вызвать уведомление с фактическим значением изменения.
         /// </summary>
         /// <param name="delta">Значение, на которое нужно изменить очки опыта.</param>
-        public void ChangeHp_WithNotification(double delta)
+        public void ChangeHP_WithNotification(double delta)
         {
-            double result = ChangeHp(delta);
-            if (result != 0) { DeltaHP?.Invoke(this, (EEvent.DeltaHP, result)); }
+            double actualDelta = ChangeHP(delta);
+            if (actualDelta != 0)
+            {
+                InvokeDeltaHP(actualDelta);
+            }
         }
+
+
 
         /// <summary>
         /// Вызвать уведомелление об ипускании владельцем value едениц damageType урона.
         /// </summary>
         /// <param name="damageType">Тип испускаемого урона.</param>
         /// <param name="value">Количество урона.</param>
-        public void EmitDamageNotification(EDamageType damageType, double value)
+        public void SendEmitDamageNotification(EDamageType damageType, double value)
         {
-            var data = (EEvent.DamageEmitting, damageType, value);
-            DamageEmitting?.Invoke(this, data);
+            if(value > 0)
+            {
+                InvokeDamageEmitting(damageType, value);
+            }
+            
         }
+
+
 
         /// <summary>
         /// Вызвать уведомелление о блокировании владельцем value едениц damageType урона.
         /// </summary>
         /// <param name="damageType">Тип блокируевомого урона.</param>
         /// <param name="value">Количество урона.</param>
-        public void BlockDamageNotification(EDamageType damageType, double value)
+        public void SendBlockDamageNotification(EDamageType damageType, double value)
         {
-            var data = (EEvent.DamageBlocking, damageType, value);
-            DamageBlocking?.Invoke(this, data);
+            if (value > 0)
+            {
+                InvokeDamageBlocking(damageType, value);
+            }
         }
+
+
 
         /// <summary>
         /// Вызвать уведомелление о принятии владельцем value едениц damageType урона.
         /// </summary>
         /// <param name="damageType">Тип принимаемого урона.</param>
         /// <param name="value">Количество урона</param>
-        public void AcceptDamageNotification(EDamageType damageType, double value)
+        public void SendAcceptDamageNotification(EDamageType damageType, double value)
         {
-            var data = (EEvent.DamageAccepting, damageType, Math.Abs(value));
-            DamageAccepting?.Invoke(this, data);
+            if (value > 0)
+            {
+                InvokeDamageAccepting(damageType, value);
+            }
         }
+
+
 
         /// <summary>
         /// Вызвать уведомелление о получении владельцем value едениц damageType урона.
         /// </summary>
         /// <param name="damageType">Тип получаемого урона.</param>
         /// <param name="value">Количество урона.</param>
-        public void TakeDamageNotification(EDamageType damageType, double value)
+        public void SendTakeDamageNotification(EDamageType damageType, double value)
         {
-            var result = ChangeHp(-value);
-            DeltaHP?.Invoke(this, (EEvent.DeltaHP, result));
-            var data = (EEvent.DamageTaking, damageType, Math.Abs(result));
-            DamageTaking?.Invoke(this, data);
+            if (value > 0)
+            {
+                InvokeDamageTaking(damageType, value);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Вызвать уведомелление о совершении хода, пуём переменещения двух соседних камней.
+        /// </summary>
+        public void SendStoneSwappingTurnNotification()
+        {
+            TurnSwitcherModule.IsTurnEnd = true;
+            InvokeStoneSwapping();
+        }
+
+        public void SendTurnEndNotification()
+        {
+            InvokeTurnExecution();
         }
         #endregion
     }
