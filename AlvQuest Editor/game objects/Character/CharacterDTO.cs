@@ -3,55 +3,50 @@
     public partial class Character
     {
         /// <summary>
-        /// 
+        /// DTO версия <see cref='Character'/>.
         /// </summary>
         public class CharacterDTO : BGO_DTO
         {
             /// <summary>
-            /// 
+            /// Уровень.
             /// </summary>
             public int Level { get; set; }
 
             /// <summary>
-            /// 
+            /// Накопленное количество опыта.
             /// </summary>
             public int Xp { get; set; }
 
             /// <summary>
-            /// 
+            /// Накопленное количество золота.
             /// </summary>
             public int Gold { get; set; }
 
             /// <summary>
-            /// 
+            /// Количество неиспользованных очков характеристик.
             /// </summary>
             public int CharPoints { get; set; }
 
             /// <summary>
-            /// 
+            /// Базовые значения характеристик.
             /// </summary>
             public Dictionary<ECharacteristic, int> Characteristics { get; set; }
 
             /// <summary>
-            /// 
+            /// Используемые перки.
             /// </summary>
             public List<Perk.PerkDTO> Perks { get; set; }
 
             /// <summary>
-            /// 
+            /// Используемое снаряжение.
             /// </summary>
             public Dictionary<EBodyPart, Equipment.EquipmentDTO> Equipment { get; set; }
 
             /// <summary>
-            /// 
+            /// Используемые заклинания.
             /// </summary>
             public List<Spell.SpellDTO> Spells { get; set; }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <returns></returns>
-            /// <exception cref="NotImplementedException"></exception>
             public override Character RecreateOriginal()
             {
                 throw new NotImplementedException();

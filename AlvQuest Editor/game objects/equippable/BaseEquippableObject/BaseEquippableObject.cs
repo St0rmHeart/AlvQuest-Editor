@@ -1,67 +1,51 @@
 ﻿namespace AlvQuest_Editor
 {
     /// <summary>
-    /// 
+    /// Стандартный экиперуемый объект
     /// </summary>
     public abstract class BaseEquippableObject : BaseGameObject
     {
         /// <summary>
-        /// 
+        /// Список эффектов, реализующий данный объект
         /// </summary>
         public List<BaseEffect> Effects { get; }
 
         /// <summary>
-        /// 
+        /// Минимальные значения характеристик, которыми должен обладать персонаж для экиперовки объекта
         /// </summary>
         public Dictionary<ECharacteristic, int> RequirementsForUse { get; }
 
         /// <summary>
-        /// 
+        /// Стандартный конструктор экиперуемого объекта
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
-        /// <param name="iconName"></param>
-        /// <param name="effects"></param>
-        /// <param name="requirementsForUse"></param>
+        /// <param name="name"> Название объекта </param>
+        /// <param name="description"> Описание объекта </param>
+        /// <param name="icon"> Иконка объекта</param>
+        /// <param name="effects"> Список эффектов, реализующий данный объект </param>
+        /// <param name="requirementsForUse"> Минимальные значения характеристик, которыми должен обладать персонаж для экиперовки объекта </param>
         protected BaseEquippableObject(
             string name,
             string description,
-            string iconName,
+            string icon,
             List<BaseEffect> effects,
-            Dictionary<ECharacteristic, int> requirementsForUse) : base(name, description, iconName)
+            Dictionary<ECharacteristic, int> requirementsForUse) : base(name, description, icon)
         {
             Effects = effects;
             RequirementsForUse = requirementsForUse;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="enemy"></param>
         public override void Installation(CharacterSlot owner, CharacterSlot enemy)
         {
             Effects.ForEach(effect => effect.Installation(owner, enemy));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public override void Uninstallation()
         {
             Effects.ForEach(effect => effect.Uninstallation());
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public abstract override BaseEquippableObject Clone();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public abstract override BEO_DTO GetDTO();
     }
 }

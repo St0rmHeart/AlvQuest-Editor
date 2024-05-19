@@ -8,27 +8,27 @@ namespace AlvQuest_Editor
     public partial class Character : BaseGameObject
     {
         /// <summary>
-        /// 
+        /// Уровень.
         /// </summary>
         public int Level { get; private set; } = 1;
         
         /// <summary>
-        /// 
+        /// Накопленное количество опыта.
         /// </summary>
         public int Xp { get; set; } = 0;
 
         /// <summary>
-        /// 
+        /// Количество неиспользованных очков характеристик.
         /// </summary>
         public int CharPoints { get; private set; } = 0;
 
         /// <summary>
-        /// 
+        /// Накопленное количество золота.
         /// </summary>
         public int Gold { get; set; } = 0;
 
         /// <summary>
-        /// 
+        /// Базовые значения характеристик.
         /// </summary>
         public Dictionary<ECharacteristic, int> Characteristics { get; private set; } = new()
         {
@@ -42,30 +42,30 @@ namespace AlvQuest_Editor
         };
 
         /// <summary>
-        /// 
+        /// Итератор по характеристикам персонажа. 
         /// </summary>
-        /// <param name="characteristic"></param>
-        /// <returns></returns>
+        /// <param name="characteristic"> <see cref='ECharacteristic'/> характеристика </param>
+        /// <returns> <see cref='int'/> значение указанной характеристики. </returns>
         public int this[ECharacteristic characteristic]
         {
             get { return Characteristics[characteristic]; }
         }
 
         /// <summary>
-        /// 
+        /// Используемые перки.
         /// </summary>
         public List<Perk> Perks { get; private set; } = new();
 
         /// <summary>
-        /// 
+        /// Используемое снаряжение.
         /// </summary>
         public Dictionary<EBodyPart, Equipment> Equipment { get; private set; } = new();
 
         /// <summary>
-        /// 
+        /// Итератор по снаряжению персонажа. 
         /// </summary>
-        /// <param name="bodyPart"></param>
-        /// <returns></returns>
+        /// <param name="bodyPart"> <see cref='EBodyPart'/> слот снаряжения </param>
+        /// <returns><see cref='AlvQuest_Editor.Equipment'/> объект снаряжения, экиперованный в указанном слоте или <see cref='null'/>, если слот пуст </returns>
         public Equipment this[EBodyPart bodyPart]
         {
             //возвращает предмет саряжения, либо null если в указанной ячейке ничего не одето
@@ -88,65 +88,37 @@ namespace AlvQuest_Editor
         }
 
         /// <summary>
-        /// 
+        /// Используемые заклинания.
         /// </summary>
         public List<Spell> Spells { get; private set; } = new();
 
         /// <summary>
         /// Базовый конструктор персонажа.
         /// </summary>
-        /// <param name="name">Имя персонажа</param>
+        /// <param name="name"> Имя персонажа </param>
+        /// <param name="description">Описание персонажа </param>
+        /// <param name="iconName"> Иконка персонажа</param>
         private Character(string name, string description, string iconName) : base(name, description, iconName)
         {
             
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="enemy"></param>
-        /// <exception cref="NotImplementedException"></exception>
         public override void Installation(CharacterSlot owner, CharacterSlot enemy)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
         public override void Uninstallation()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public override Character Clone()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public override CharacterDTO GetDTO()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <exception cref="NotImplementedException"></exception>
-        public void AddXP(int value)
         {
             throw new NotImplementedException();
         }

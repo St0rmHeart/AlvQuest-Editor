@@ -3,7 +3,7 @@
     public partial class Spell
     {
         /// <summary>
-        /// 
+        /// DTO версия <see cref='Spell'/>.
         /// </summary>
         public class SpellDTO : BEO_DTO
         {
@@ -21,7 +21,7 @@
                 return new Spell(
                 name: BaseData.Name,
                 description: BaseData.Description,
-                iconName: BaseData.Icon,
+                icon: BaseData.Icon,
                 effects: new List<BaseEffect>(Effects.Select(effect => effect.RecreateOriginal()).ToList()),
                 requirementsForUse: new Dictionary<ECharacteristic, int>(RequirementsForUse),
                 manaCost: new Dictionary<EManaType, double>(ManaCost));

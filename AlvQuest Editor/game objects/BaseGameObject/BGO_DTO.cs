@@ -13,7 +13,7 @@
         /// <summary>
         /// Вычисляет хэш код в зависимости от содержимых данных.
         /// </summary>
-        /// <returns><see cref="int"/> Хэш код конкретного объекта. </returns>
+        /// <returns><see cref="int"/> Хэш код конкретного объекта.</returns>
         public override int GetHashCode()
         {
             return BaseData.GetHashCode();

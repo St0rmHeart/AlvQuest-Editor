@@ -3,20 +3,19 @@
     public partial class PassiveParameterModifier
     {
         /// <summary>
-        /// Вложенный класс-строитель объектов класса PassiveParameterModifier
+        /// Класс-строитель объектов класса <see cref="PassiveParameterModifier"/>
         /// </summary>
         public class PPM_Builder : BGO_Builder<PPM_Builder, PassiveParameterModifier, PPM_DTO>
         {
             /// <summary>
-            /// 
+            /// Добавить указывающую ссылку в настройки строителя.
             /// </summary>
-            /// <param name="target"></param>
-            /// <param name="characteristic"></param>
-            /// <param name="derivative"></param>
-            /// <param name="variable"></param>
-            /// <param name="value"></param>
+            /// <param name="target"> цель воздействия </param>
+            /// <param name="characteristic"> характеристика воздействия </param>
+            /// <param name="derivative"> производная воздействия </param>
+            /// <param name="variable"> переменная воздействия </param>
+            /// <param name="value"> величина воздействия </param>
             /// <returns></returns>
-            /// <exception cref="ArgumentException"></exception>
             public PPM_Builder SetLink(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value)
             {
                 if (target == EPlayerType.None || characteristic == ECharacteristic.None || derivative == EDerivative.None || variable == EVariable.None || value == 0)
@@ -29,18 +28,15 @@
                 }
                 var newLink = (target, characteristic, derivative, variable, value);
                 var newDTOLink = AlvQuestStatic.DTOConverter.ToDTOImpactLink(newLink);
-                bool dictionaryExists = _entityData.Links.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
+                bool dictionaryExists = _objectData.Links.Any(d => d.OrderBy(kvp => kvp.Key).SequenceEqual(newDTOLink.OrderBy(kvp => kvp.Key)));
                 if (dictionaryExists) throw new ArgumentException("Указанная ссылка уже существует.");
-                _entityData.Links.Add(newDTOLink);
+                _objectData.Links.Add(newDTOLink);
                 return this;
             }
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <exception cref="ArgumentException"></exception>
+
             protected override void ValidateAdditionalContent()
             {
-                if (_entityData.Links?.Count == 0) throw new ArgumentException("Отсутствует ссылка.");
+                if (_objectData.Links?.Count == 0) throw new ArgumentException("Отсутствует ссылка.");
             }
         }
     }

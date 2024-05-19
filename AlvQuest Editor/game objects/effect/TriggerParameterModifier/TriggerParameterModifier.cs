@@ -1,78 +1,87 @@
 ﻿namespace AlvQuest_Editor
 {
     /// <summary>
-    /// 
+    /// Эффект реализующий динамическую вариативную игровую логику изменений <see cref="EVariable"/> в <see cref="Parameter"/>
     /// </summary>
     public partial class TriggerParameterModifier : BaseEffect
     {
         /// <summary>
-        /// 
+        /// Логический модуль определяющий реагировать ли при срабатывания событий-триггеров
         /// </summary>
         private readonly LogicalModule _triggerlogicalModule;
 
         /// <summary>
-        /// 
+        /// Логический модуль определяющий реагировать ли при срабатывания событий-тиков
         /// </summary>
         private readonly LogicalModule _ticklogicalModule;
 
         /// <summary>
-        /// 
+        /// Длительность эффекта в тиках
         /// </summary>
         private readonly int _duration;
 
         /// <summary>
-        /// 
+        /// Максимальное накапливаемое количество складываний эффекта
         /// </summary>
         private readonly int _maxStack;
 
         /// <summary>
-        /// 
+        /// Список событий, считающихся триггерами:
+        /// <br /><see cref="EPlayerType"/> <c>target</c> - цель, у которой нужно отслеживать событие;
+        /// <br /><see cref="EEvent"/> <c>type</c> - тип отслеживаемого события.
         /// </summary>
         private readonly List<(EPlayerType target, EEvent type)> _triggerEvents;
 
         /// <summary>
-        /// 
+        /// Список событий, считающихся тиками:
+        /// <br /><see cref="EPlayerType"/> <c>target</c> - цель, у которой нужно отслеживать событие;
+        /// <br /><see cref="EEvent"/> <c>type</c> - тип отслеживаемого события.
         /// </summary>
         private readonly List<(EPlayerType target, EEvent type)> _tickEvents;
 
         /// <summary>
-        /// 
+        /// Сылки, указывающие как проводить модификации:
+        /// <br /><see cref="EPlayerType"/> <c>target</c> - цель воздействия;
+        /// <br /><see cref="ECharacteristic"/> <c>characteristic</c> - характеристика воздействия;
+        /// <br /><see cref="EDerivative"/> <c>derivative</c> - производная воздействия;
+        /// <br /><see cref="EVariable"/> <c>variable</c> - переменная воздействия;
+        /// <br /><see cref="double"/> <c>value</c> - величина воздействия.
         /// </summary>
         private readonly List<(EPlayerType target, ECharacteristic characteristic, EDerivative derivative, EVariable variable, double value)> _links;
 
         /// <summary>
-        /// 
+        /// Внутренний список, куда заносятся параметры, на которые будут оказываться воздействия
         /// </summary>
         private readonly List<Parameter> _parameters = new();
 
         /// <summary>
-        /// 
+        /// Флажок, показывающий активен ли эффект в данный момент.
         /// </summary>
         private bool _isActive;
 
         /// <summary>
-        /// 
+        /// Счетчик оставшихся тиков до окончания действия эффекта.
         /// </summary>
         private int _counterTick;
 
         /// <summary>
-        /// 
+        /// Счетчик текущего количества складываний эффекта.
         /// </summary>
         private int _counterStack;
 
         /// <summary>
-        /// 
+        /// Стандартный конструктор <see cref="TriggerParameterModifier"/>
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
-        /// <param name="iconName"></param>
-        /// <param name="triggerlogicalModule"></param>
-        /// <param name="ticklogicalModule"></param>
-        /// <param name="duration"></param>
-        /// <param name="maxStack"></param>
-        /// <param name="links"></param>
-        /// <param name="triggerEvents"></param>
-        /// <param name="tickEvents"></param>
+        /// <param name="name"> Имя эффекта </param>
+        /// <param name="description"> Описание эффекта </param>
+        /// <param name="iconName"> Иконка эффекта </param>
+        /// <param name="triggerlogicalModule"> Логический модуль определяющий реагировать ли при срабатывания событий-триггеров </param>
+        /// <param name="ticklogicalModule"> Логический модуль определяющий реагировать ли при срабатывания событий-тиков </param>
+        /// <param name="duration"> Длительность эффекта в тиках</param>
+        /// <param name="maxStack"> Максимальное накапливаемое количество складываний эффекта </param>
+        /// <param name="links"> Список указывающих ссылок </param>
+        /// <param name="triggerEvents"> Список событий, считающихся триггерами </param>
+        /// <param name="tickEvents"> Список событий, считающихся тиками </param>
         private TriggerParameterModifier(
             string name,
             string description,
@@ -94,43 +103,6 @@
             _tickEvents = tickEvents;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="owner"></param>
-        /// <param name="enemy"></param>
-        public override void Installation(CharacterSlot owner, CharacterSlot enemy)
-        {
-            _isActive = false;
-
-            for (int i = 0; i < _links.Count; i++)
-            {
-                var link = _links[i];
-                var target = (link.target == EPlayerType.Self) ? owner : enemy;
-                var currentParameter = target.Data[link.characteristic][link.derivative];
-                _parameters.Add(currentParameter);
-            }
-            foreach (var triggerEvent in _triggerEvents)
-            {
-                SubscribeTrigger(owner, enemy, triggerEvent);
-            }
-            foreach (var tickEvent in _tickEvents)
-            {
-                SubscribeTick(owner, enemy, tickEvent);
-            }
-            _triggerlogicalModule.Installation(owner, enemy);
-            _ticklogicalModule.Installation(owner, enemy);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public override void Uninstallation()
-        {
-            _parameters.Clear();
-            _triggerlogicalModule.Uninstallation();
-            _ticklogicalModule.Uninstallation();
-        }
         #region Реализация функционала потомка
         /// <summary>
         /// 
@@ -230,7 +202,7 @@
             {
                 for (int i = 0; i < _parameters.Count; i++)
                 {
-                    _parameters[i].ChangeVariable(_links[i].variable, - (_links[i].value) * _counterStack);
+                    _parameters[i].ChangeVariable(_links[i].variable, -(_links[i].value) * _counterStack);
                 }
                 _isActive = false;
                 _counterStack = 0;
@@ -271,10 +243,37 @@
         }
         #endregion
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        public override void Installation(CharacterSlot owner, CharacterSlot enemy)
+        {
+            _isActive = false;
+
+            for (int i = 0; i < _links.Count; i++)
+            {
+                var link = _links[i];
+                var target = (link.target == EPlayerType.Self) ? owner : enemy;
+                var currentParameter = target.Data[link.characteristic][link.derivative];
+                _parameters.Add(currentParameter);
+            }
+            foreach (var triggerEvent in _triggerEvents)
+            {
+                SubscribeTrigger(owner, enemy, triggerEvent);
+            }
+            foreach (var tickEvent in _tickEvents)
+            {
+                SubscribeTick(owner, enemy, tickEvent);
+            }
+            _triggerlogicalModule.Installation(owner, enemy);
+            _ticklogicalModule.Installation(owner, enemy);
+        }
+
+        public override void Uninstallation()
+        {
+            _parameters.Clear();
+            _triggerlogicalModule.Uninstallation();
+            _ticklogicalModule.Uninstallation();
+        }
+        
+
         public override TPM_DTO GetDTO()
         {
             var dto = new TPM_DTO
@@ -291,10 +290,6 @@
             return dto;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override TriggerParameterModifier Clone()
         {
             return new TriggerParameterModifier(

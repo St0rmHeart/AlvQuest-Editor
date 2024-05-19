@@ -2,6 +2,8 @@
 {
     public partial class Equipment
     {
+        //надо переписать
+        
         /*public class EquipmentBuilder : BaseBuilder<EquipmentBuilder, Equipment, EquipmentDTO>
         {
             public EquipmentBuilder SetEffect(BaseEffectDTO newEffect)

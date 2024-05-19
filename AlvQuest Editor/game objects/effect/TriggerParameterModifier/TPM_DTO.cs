@@ -3,48 +3,44 @@
     public partial class TriggerParameterModifier
     {
         /// <summary>
-        /// 
+        /// DTO версия класса <see cref="TriggerParameterModifier"/>
         /// </summary>
         public class TPM_DTO : BaseEffectDTO
         {
             /// <summary>
-            /// 
+            /// Логический модуль определяющий реагировать ли при срабатывания событий-триггеров
             /// </summary>
             public LogicalModule_DTO TriggerLogicalModule_DTO { get; set; }
-            
+
             /// <summary>
-            /// 
+            /// Логический модуль определяющий реагировать ли при срабатывания событий-тиков
             /// </summary>
             public LogicalModule_DTO TickLogicalModule_DTO { get; set; }
 
             /// <summary>
-            /// 
+            /// Длительность эффекта в тиках
             /// </summary>
             public int Duration { get; set; }
             /// <summary>
-            /// 
+            /// Максимальное накапливаемое количество складываний эффекта
             /// </summary>
             public int MaxStack { get; set; }
 
             /// <summary>
-            /// 
+            /// Список событий, считающихся триггерами
             /// </summary>
             public List<Dictionary<string, string>> TriggerEvents { get; set; } = new();
 
             /// <summary>
-            /// 
+            /// Список событий, считающихся тиками
             /// </summary>
             public List<Dictionary<string, string>> TickEvents { get; set; } = new();
 
             /// <summary>
-            /// 
+            /// Сылки, указывающие как проводить модификации
             /// </summary>
             public List<Dictionary<string, string>> Links { get; set; } = new();
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <returns></returns>
             public override int GetHashCode()
             {
                 unchecked
@@ -61,10 +57,6 @@
                 }
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <returns></returns>
             public override TriggerParameterModifier RecreateOriginal()
             {
                 return new TriggerParameterModifier(

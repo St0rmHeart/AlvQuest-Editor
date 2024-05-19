@@ -1,7 +1,7 @@
 ﻿namespace AlvQuest_Editor
 {
     /// <summary>
-    /// Общие поля всех игровых сущностей  
+    /// Класс с общими полями всех игровых объектов. 
     /// </summary>
     public class BaseData
     {

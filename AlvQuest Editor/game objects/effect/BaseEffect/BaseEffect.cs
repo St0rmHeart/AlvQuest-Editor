@@ -6,23 +6,15 @@
     public abstract class BaseEffect : BaseGameObject
     {
         /// <summary>
-        /// 
+        /// Стандартный конструктор эффекта
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
-        /// <param name="iconName"></param>
+        /// <param name="name"> Название эффекта </param>
+        /// <param name="description"> Описание эффекта </param>
+        /// <param name="iconName"> Иконка эффекта </param>
         protected BaseEffect(string name, string description, string iconName) : base(name, description, iconName) { }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public abstract override BaseEffect Clone();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public abstract override BaseEffectDTO GetDTO();
     }
 }

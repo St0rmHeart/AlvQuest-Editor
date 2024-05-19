@@ -3,53 +3,46 @@
 namespace AlvQuest_Editor
 {
     /// <summary>
-    /// 
+    /// Заклинания, которыми пользуются персонажи 
     /// </summary>
     public partial class Spell : BaseEquippableObject
     {
         /// <summary>
-        /// 
+        /// Количество маны, тратящееся за использование заклинания
         /// </summary>
         public Dictionary<EManaType, double> ManaCost {  get; private set; }
 
         /// <summary>
-        /// 
+        /// Стандартный конструктор заклинаний 
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
-        /// <param name="iconName"></param>
-        /// <param name="effects"></param>
-        /// <param name="requirementsForUse"></param>
-        /// <param name="manaCost"></param>
-        public Spell(string name,
+        /// <param name="name"> Название заклинания </param>
+        /// <param name="description"> Описание заклинания </param>
+        /// <param name="icon"> Иконка заклинания </param>
+        /// <param name="effects"> Список эффектов, реализующий данный объект </param>
+        /// <param name="requirementsForUse"> Минимальные значения характеристик, которыми должен обладать персонаж для экиперовки объекта </param>
+        /// <param name="manaCost"> Количество маны, тратящееся за использование заклинания </param>
+        public Spell(
+            string name,
             string description,
-            string iconName, List<BaseEffect> effects,
+            string icon, List<BaseEffect> effects,
             Dictionary<ECharacteristic, int> requirementsForUse,
             Dictionary<EManaType, double> manaCost)
-            : base(name, description, iconName, effects, requirementsForUse)
+            : base(name, description, icon, effects, requirementsForUse)
         {
             ManaCost = manaCost;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override Spell Clone()
         {
             return new Spell(
                 name: Name,
                 description: Description,
-                iconName: Icon,
+                icon: Icon,
                 effects: Effects.Select(effect => effect.Clone()).ToList(),
                 requirementsForUse: new Dictionary<ECharacteristic, int>(RequirementsForUse),
                 manaCost: new Dictionary<EManaType, double>(ManaCost));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public override SpellDTO GetDTO()
         {
             var dto = new SpellDTO

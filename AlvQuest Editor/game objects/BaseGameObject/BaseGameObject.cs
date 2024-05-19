@@ -23,8 +23,8 @@
         /// <summary>
         /// Базовый конструктор всех игровых объектов.
         /// </summary>
-        /// <param name="name"> Название</param>
-        /// <param name="description"> Описание</param>
+        /// <param name="name"> Название игрового объекта </param>
+        /// <param name="description"> Описание игрового объекта </param>
         /// <param name="icon"> Название файла - иконки </param>
         public BaseGameObject(string name, string description, string icon)
         {
@@ -34,9 +34,10 @@
         }
 
         /// <summary>
-        /// Внутренний метод для удобного копирования основных полей в DTO
+        /// Внутренний метод для удобного копирования основных полей в DTO.
+        /// <br /> Испорльзуется в методах <see cref='GetDTO()'/>
         /// </summary>
-        /// <returns></returns> 
+        /// <returns><see cref='BaseData'/> объект с информацией.</returns> 
         protected BaseData GetBaseData()
         {
             return new BaseData
@@ -60,14 +61,13 @@
         public abstract void Uninstallation();
 
         /// <summary>
-        /// Возвращает глубокую копию объекта
+        /// Возвращает глубокую копию объекта.
         /// </summary>
         public abstract BaseGameObject Clone();
 
         /// <summary>
         /// Возвращает DTO версию объекта.
         /// </summary>
-        /// <returns></returns>
         public abstract BGO_DTO GetDTO();
     }
 }
