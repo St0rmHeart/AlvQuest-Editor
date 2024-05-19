@@ -347,10 +347,11 @@ namespace AlvQuest_Editor
         public const int HASH_CONST = 16769023;
         public const int STONE_GRID_SIZE = 8;
         public const int ACCURACY_OF_CALCULATIONS = 4;
+        public static readonly int[] levelBoundaries = [0, 100, 150, 250, 400, 600, 900, 1400, 2000, 2800, 3700];
         public static readonly Dictionary<ECharacteristic, Dictionary<EDerivative, List<ECharacteristic>>> DERIVATIVE_SUBSCRIPTIONS;
         public static readonly Dictionary<ECharacteristic, List<EDerivative>> CHAR_DER_PAIRS;
         public static readonly Character TEMPLATE_CHARACTER;
-        public static bool IsPpossibleToEquip(BaseEquippableEntity entity, Character character)
+        public static bool IsPpossibleToEquip(BaseEquippableObject entity, Character character)
         {
             bool IsAvailable = true;
             List<ECharacteristic> characteristics = Enum.GetValues(typeof(ECharacteristic)).Cast<ECharacteristic>().Skip(2).ToList();
@@ -360,7 +361,7 @@ namespace AlvQuest_Editor
             }
             return IsAvailable;
         }
-        public static bool IsPpossibleToEquip(BaseEquippableEntityDTO entity, Character character)
+        public static bool IsPpossibleToEquip(BEO_DTO entity, Character character)
         {
             bool IsAvailable = true;
             List<ECharacteristic> characteristics = Enum.GetValues(typeof(ECharacteristic)).Cast<ECharacteristic>().Skip(2).ToList();
@@ -374,7 +375,7 @@ namespace AlvQuest_Editor
         {
             return Math.Round(value, ACCURACY_OF_CALCULATIONS);
         }
-        public static int GetHashCode(List<Dictionary<string, string>> data)
+        public static int GetLinkHashCode(List<Dictionary<string, string>> data)
         {
             int hashCode = HASH_CONST;
             foreach (var dict in data.OrderBy(d => string.Join(",", d.Keys.OrderBy(k => k))))
@@ -506,17 +507,5 @@ namespace AlvQuest_Editor
             }
         }
     }
-    /// <summary>
-    /// Общие поля всех игровых сущностей  
-    /// </summary>
-    public class BaseData
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Icon { get; set; }
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Name, Description, Icon);
-        }
-    }
+    
 }

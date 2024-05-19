@@ -11,12 +11,12 @@ namespace AlvQuest_Editor
         /// <para><see cref='EStoneType'/> - тип камней комбинации,</para>
         /// <para><see cref='int'/> - длина комбинации.</para>
         /// </summary>
-        public List<(EStoneType StoneType, int Lenth)> OnFieldCombinations { get; } = [];
+        public List<(EStoneType StoneType, int Lenth)> OnFieldCombinations { get; } = new();
 
         /// <summary>
         /// Координаты каждого камня комбинаций.
         /// </summary>
-        public Dictionary<(int X, int Y), EStoneType> OnFieldCombinationsStones { get; } = [];
+        public Dictionary<(int X, int Y), EStoneType> OnFieldCombinationsStones { get; } = new();
 
         public Dictionary<EStoneType, int> AmountOfCombinedStones = new()
         {

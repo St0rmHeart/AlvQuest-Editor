@@ -1,48 +1,12 @@
 ﻿namespace AlvQuest_Editor
 {
     /// <summary>
-    /// Базовый Data Transfer Object класс для всех игровых объектов. 
-    /// </summary>
-    public abstract class BaseDTO
-    {
-        public BaseData BaseData { get; set; } = new BaseData();
-        public override int GetHashCode()
-        {
-            return BaseData.GetHashCode();
-        }
-        public abstract BaseGameEntity RecreateOriginal();
-    }
-    /// <summary>
-    /// Базовый класс для всех игровых объектов
-    /// </summary>
-    public abstract class BaseGameEntity
-    {
-        public BaseGameEntity(string name, string description, string iconName)
-        {
-            Name = name;
-            Description = description;
-            IconName = iconName;
-        }
-        public string Name { get; }
-        public string Description { get; }
-        public string IconName { get; }
-        protected BaseData GetBaseData()
-        {
-            return new BaseData { Name = Name, Description = Description, Icon = IconName };
-        }
-        public abstract void Installation(CharacterSlot owner, CharacterSlot enemy);
-        public abstract void Uninstallation();
-        public abstract BaseGameEntity Clone();
-        public abstract BaseDTO GetDTO();
-    }
-    /// <summary>
     /// Общий функционал для всех строителей эффектов
     /// </summary>
-    /// 
-    public abstract class BaseBuilder<TBuilder, TProduct, TDTO>
-        where TBuilder : BaseBuilder<TBuilder, TProduct, TDTO>
-        where TProduct : BaseGameEntity
-        where TDTO : BaseDTO, new()
+    public abstract class BGO_Builder<TBuilder, TProduct, TDTO>
+        where TBuilder : BGO_Builder<TBuilder, TProduct, TDTO>
+        where TProduct : BaseGameObject
+        where TDTO : BGO_DTO, new()
     {
         protected TDTO _entityData = new();
         public TBuilder Reset()

@@ -3,7 +3,7 @@
 namespace AlvQuest_Editor
 {
     public abstract class GameEntityPanel<TDTO> : Panel
-        where TDTO : BaseDTO
+        where TDTO : BGO_DTO
     {
         public Label EntityName { get; } = new();
         public Label EntityDescription { get; } = new();

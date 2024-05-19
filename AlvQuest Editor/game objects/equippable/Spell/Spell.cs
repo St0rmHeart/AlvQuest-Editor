@@ -2,10 +2,25 @@
 
 namespace AlvQuest_Editor
 {
-    public class Spell : BaseEquippableEntity
+    /// <summary>
+    /// 
+    /// </summary>
+    public partial class Spell : BaseEquippableObject
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public Dictionary<EManaType, double> ManaCost {  get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="iconName"></param>
+        /// <param name="effects"></param>
+        /// <param name="requirementsForUse"></param>
+        /// <param name="manaCost"></param>
         public Spell(string name,
             string description,
             string iconName, List<BaseEffect> effects,
@@ -16,17 +31,25 @@ namespace AlvQuest_Editor
             ManaCost = manaCost;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override Spell Clone()
         {
             return new Spell(
                 name: Name,
                 description: Description,
-                iconName: IconName,
+                iconName: Icon,
                 effects: Effects.Select(effect => effect.Clone()).ToList(),
                 requirementsForUse: new Dictionary<ECharacteristic, int>(RequirementsForUse),
                 manaCost: new Dictionary<EManaType, double>(ManaCost));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override SpellDTO GetDTO()
         {
             var dto = new SpellDTO
@@ -36,21 +59,6 @@ namespace AlvQuest_Editor
                 RequirementsForUse = new Dictionary<ECharacteristic, int>(RequirementsForUse),
             };
             return dto;
-        }
-
-        public class SpellDTO : BaseEquippableEntityDTO
-        {
-            public Dictionary<EManaType, double> ManaCost { get; set; }
-            public override Spell RecreateOriginal()
-            {
-                return new Spell(
-                name: BaseData.Name,
-                description: BaseData.Description,
-                iconName: BaseData.Icon,
-                effects: new List<BaseEffect>(Effects.Select(effect => effect.RecreateOriginal()).ToList()),
-                requirementsForUse: new Dictionary<ECharacteristic, int>(RequirementsForUse),
-                manaCost: new Dictionary<EManaType, double>(ManaCost));
-            }
         }
     }
 }

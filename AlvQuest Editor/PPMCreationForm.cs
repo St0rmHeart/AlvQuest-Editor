@@ -2,7 +2,7 @@
 {
     public partial class PPMCreationForm : BaseEditorForm
     {
-        private readonly List<ImpactLinkPanel> ImpactLinkPanelList = [];
+        private readonly List<ImpactLinkPanel> ImpactLinkPanelList = new();
         private bool _isNewPPM;
         private PPMPanel _editablePanel;
         private string _iconFileData;

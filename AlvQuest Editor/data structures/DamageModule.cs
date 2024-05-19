@@ -23,7 +23,7 @@ namespace AlvQuest_Editor
         private readonly List<(
             CharacterSlot attacker,
             CharacterSlot defender,
-            (EDamageType type, double value, bool isblockable, bool isAttackerReact, bool isDefenderReact) damageData)> _attacksList = [];
+            (EDamageType type, double value, bool isblockable, bool isAttackerReact, bool isDefenderReact) damageData)> _attacksList = new();
 
         #endregion
 

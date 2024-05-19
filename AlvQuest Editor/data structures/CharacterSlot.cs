@@ -679,7 +679,7 @@ namespace AlvQuest_Editor
         public int ChangeXP(double value)
         {
             int currentLevel = Character.Level;
-            int currentMinimum = Character.levelBoundaries[currentLevel - 2];
+            int currentMinimum = AlvQuestStatic.levelBoundaries[currentLevel - 2];
             int delta = (int)Math.Round(value);
             int oldXp = Xp;
             int newXp = oldXp + delta;
