@@ -5,7 +5,7 @@
         /// <summary>
         /// Класс-строитель объектов класса <see cref="PassiveParameterModifier"/>
         /// </summary>
-        public class PPM_Builder : BGO_Builder<PPM_Builder, PassiveParameterModifier, PPM_DTO>
+        public class PPM_Builder : BaseEffectBuilder<PPM_Builder, PassiveParameterModifier, PPM_DTO>
         {
             /// <summary>
             /// Добавить указывающую ссылку в настройки строителя.
@@ -34,9 +34,14 @@
                 return this;
             }
 
-            protected override void ValidateAdditionalContent()
+            protected override void ResetAdditionalData()
             {
-                if (_objectData.Links?.Count == 0) throw new ArgumentException("Отсутствует ссылка.");
+                _objectData.Links = new();
+            }
+
+            protected override void ValidateAdditionalData()
+            {
+                if (_objectData.Links.Count == 0) throw new ArgumentException("Отсутствует ссылка.");
             }
         }
     }

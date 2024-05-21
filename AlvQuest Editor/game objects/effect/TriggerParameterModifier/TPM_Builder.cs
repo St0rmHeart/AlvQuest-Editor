@@ -5,7 +5,7 @@
         /// <summary>
         /// Класс-строитель объектов класса <see cref="PassiveParameterModifier"/>
         /// </summary>
-        public class TPM_Builder : BGO_Builder<TPM_Builder, TriggerParameterModifier, TPM_DTO>
+        public class TPM_Builder : BaseEffectBuilder<TPM_Builder, TriggerParameterModifier, TPM_DTO>
         {
             /// <summary>
             /// Устанавливает триггерный логический модуль
@@ -113,16 +113,25 @@
                 _objectData.TickEvents.Add(newDTOLink);
                 return this;
             }
-
-            protected override void ValidateAdditionalContent()
+            protected override void ResetAdditionalData()
+            {
+                _objectData.TriggerLogicalModule_DTO = null;
+                _objectData.TickLogicalModule_DTO = null;
+                _objectData.Duration = 0;
+                _objectData.MaxStack = 0;
+                _objectData.Links = new();
+                _objectData.TickEvents = new();
+                _objectData.TriggerEvents = new();
+            }
+            protected override void ValidateAdditionalData()
             {
                 if (_objectData.TriggerLogicalModule_DTO == null) throw new ArgumentException("Не указан логический модуль триггера");
                 if (_objectData.TickLogicalModule_DTO == null) throw new ArgumentException("Не указан логический модуль тика");
                 if (_objectData.Duration == 0) throw new ArgumentException("Не указана длительность");
                 if (_objectData.MaxStack == 0) throw new ArgumentException("Не указан максимальный стак");
-                if (_objectData.Links?.Count == 0) throw new ArgumentException("Не указана ссылка");
-                if (_objectData.TriggerEvents?.Count == 0) throw new ArgumentException("Не указан ивент-триггер");
-                if (_objectData.TickEvents?.Count == 0) throw new ArgumentException("Не указан ивент-тик");
+                if (_objectData.Links.Count == 0) throw new ArgumentException("Не указана ссылка");
+                if (_objectData.TriggerEvents.Count == 0) throw new ArgumentException("Не указан ивент-триггер");
+                if (_objectData.TickEvents.Count == 0) throw new ArgumentException("Не указан ивент-тик");
             }
         }
     }

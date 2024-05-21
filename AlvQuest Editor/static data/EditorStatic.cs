@@ -26,7 +26,7 @@ namespace AlvQuest_Editor
                 .SetDescription("Увеличивает максимальное здоровье на 10.")
                 .SetIcon("FireKnightIcon")
                 .SetLink(EPlayerType.Self, ECharacteristic.Endurance, EDerivative.MaxHealth, EVariable.C2, 10)
-                .BuildEntity();
+                .Build();
 
             var newTriggerParameter = TPMBuilder
                 .SetName("Нарастающая ярость.")
@@ -41,7 +41,7 @@ namespace AlvQuest_Editor
                 .SetLink(EPlayerType.Self, ECharacteristic.Strength, EDerivative.Value, EVariable.C1, 0.05)
                 .SetTriggerEvent(EPlayerType.Enemy, EEvent.DamageTaking)
                 .SetTickEventt(EPlayerType.Self, EEvent.StepExecution)
-                .BuildEntity();
+                .Build();
             #endregion
 
             JsonLoad();

@@ -495,7 +495,7 @@ namespace AlvQuest_Editor
             }
             public static PassiveParameterModifier ConvertDTOtoPPM(PassiveParameterModifier.PPM_DTO dto)
             {
-                return new PassiveParameterModifier.PPM_Builder().InstallDTO(dto).BuildEntity();
+                return new PassiveParameterModifier.PPM_Builder().InstallDTO(dto).Build();
             }
             public static TriggerParameterModifier.TPM_DTO ConvertTPMtoDTO(TriggerParameterModifier tpm)
             {
@@ -503,7 +503,7 @@ namespace AlvQuest_Editor
             }
             public static TriggerParameterModifier ConvertDTOtoTPM(TriggerParameterModifier.TPM_DTO dto)
             {
-                return new TriggerParameterModifier.TPM_Builder().InstallDTO(dto).BuildEntity();
+                return new TriggerParameterModifier.TPM_Builder().InstallDTO(dto).Build();
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System.Drawing;
+using System.Reflection.PortableExecutable;
+using System.Xml.Linq;
 
 namespace AlvQuest_Editor
 {
@@ -11,7 +13,7 @@ namespace AlvQuest_Editor
         /// Уровень.
         /// </summary>
         public int Level { get; private set; } = 1;
-        
+
         /// <summary>
         /// Накопленное количество опыта.
         /// </summary>
@@ -30,7 +32,7 @@ namespace AlvQuest_Editor
         /// <summary>
         /// Базовые значения характеристик.
         /// </summary>
-        public Dictionary<ECharacteristic, int> Characteristics { get; private set; } = new()
+        private Dictionary<ECharacteristic, int> _characteristics = new()
         {
             {ECharacteristic.Strength, 0},
             {ECharacteristic.Endurance, 0},
@@ -48,30 +50,30 @@ namespace AlvQuest_Editor
         /// <returns> <see cref='int'/> значение указанной характеристики. </returns>
         public int this[ECharacteristic characteristic]
         {
-            get { return Characteristics[characteristic]; }
+            get { return _characteristics[characteristic]; }
         }
 
         /// <summary>
         /// Используемые перки.
         /// </summary>
-        public List<Perk> Perks { get; private set; } = new();
+        private List<Perk> _perks = new();
 
         /// <summary>
         /// Используемое снаряжение.
         /// </summary>
-        public Dictionary<EBodyPart, Equipment> Equipment { get; private set; } = new();
+        private Dictionary<EBodyPart, Equipment> _equipment = new();
 
         /// <summary>
         /// Итератор по снаряжению персонажа. 
         /// </summary>
         /// <param name="bodyPart"> <see cref='EBodyPart'/> слот снаряжения </param>
-        /// <returns><see cref='AlvQuest_Editor.Equipment'/> объект снаряжения, экиперованный в указанном слоте или <see cref='null'/>, если слот пуст </returns>
+        /// <returns><see cref='Equipment'/> объект снаряжения, экиперованный в указанном слоте или <see cref='null'/>, если слот пуст </returns>
         public Equipment this[EBodyPart bodyPart]
         {
             //возвращает предмет саряжения, либо null если в указанной ячейке ничего не одето
             get
             {
-                if (Equipment.TryGetValue(bodyPart, out Equipment value))
+                if (_equipment.TryGetValue(bodyPart, out Equipment value))
                 {
                     return value;
                 }
@@ -80,17 +82,12 @@ namespace AlvQuest_Editor
                     return null;
                 }
             }
-            //если в указанной ячейку уже что-то одето - устанавливается ссылка на новый объект снаряжения
-            set
-            {
-                Equipment[bodyPart] = value;
-            }
         }
 
         /// <summary>
         /// Используемые заклинания.
         /// </summary>
-        public List<Spell> Spells { get; private set; } = new();
+        private List<Spell> _spells = new();
 
         /// <summary>
         /// Базовый конструктор персонажа.
@@ -98,29 +95,51 @@ namespace AlvQuest_Editor
         /// <param name="name"> Имя персонажа </param>
         /// <param name="description">Описание персонажа </param>
         /// <param name="iconName"> Иконка персонажа</param>
-        private Character(string name, string description, string iconName) : base(name, description, iconName)
-        {
-            
-        }
+        private Character(string name, string description, string iconName) : base(name, description, iconName) { }
 
         public override void Installation(CharacterSlot owner, CharacterSlot enemy)
         {
             throw new NotImplementedException();
         }
-
         public override void Uninstallation()
         {
             throw new NotImplementedException();
         }
-
         public override Character Clone()
         {
-            throw new NotImplementedException();
-        }
+            var character = new Character(
+                name: Name,
+                description: Description,
+                iconName: Icon
+            )
+            {
+                Level = Level,
+                Xp = Xp,
+                Gold = Gold,
+                CharPoints = CharPoints,
+                _characteristics = new Dictionary<ECharacteristic, int>(_characteristics),
+                _perks = _perks.Select(perk => perk.Clone()).ToList(),
+                _equipment = _equipment.ToDictionary(kv => kv.Key, kv => kv.Value.Clone()),
+                _spells = _spells.Select(spell => spell.Clone()).ToList()
+            };
 
+            return character;
+        }
         public override CharacterDTO GetDTO()
         {
-            throw new NotImplementedException();
+            var characterDTO = new CharacterDTO
+            {
+                BaseData = GetBaseData(),
+                Level = Level,
+                Xp = Xp,
+                Gold = Gold,
+                CharPoints = CharPoints,
+                Characteristics = _characteristics,
+                Perks = _perks.Select(perk => perk.GetDTO()).ToList(),
+                Equipment = _equipment.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.GetDTO()),
+                Spells = _spells.Select(spell => spell.GetDTO()).ToList()
+            };
+            return characterDTO;
         }
     }
 }

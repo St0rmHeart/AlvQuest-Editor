@@ -14,17 +14,37 @@
         /// <summary>
         /// DTO версия создаваемого объекта, в которую кешируются все настройки строителя.
         /// </summary>
-        protected TDTO _objectData = new();
+        protected TDTO _objectData;
+
+        public BGO_Builder()
+        {
+            ResetData();
+        }
 
         /// <summary>
-        /// Сброс всех кешированных настроек строителя.
+        /// Пересоздаёт строителя с
         /// </summary>
         /// <returns> Экземлер строителя для реализации fluent интерфейса.</returns>
         public TBuilder Reset()
         {
-            _objectData = new();
+            ResetData();
             return this as TBuilder;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected void ResetData()
+        {
+            _objectData = new();
+            _objectData.BaseData = new();
+            ResetAdditionalData();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected abstract void ResetAdditionalData();
 
         /// <summary>
         /// Установка настроек строителя из готового DTO объекта.
@@ -74,23 +94,27 @@
         /// Проверяет правильность заполения основных данных
         /// </summary>
         /// <exception cref="ArgumentException"></exception>
-        protected void ValidateBaseContent()
+        protected void ValidateData()
         {
             var baseData = _objectData.BaseData;
             if (baseData.Name == null || baseData.Name == "") throw new ArgumentException("Отсутствует название.");
             if (baseData.Description == null || baseData.Description == "") throw new ArgumentException("Отсутствует описание.");
             if (baseData.Icon == null) throw new ArgumentException("Отсутствует иконка.");
+            ValidateAdditionalData();
         }
+
+        /// <summary>
+        /// Проверяет правильность заполения дополнительных данных.
+        /// </summary>
+        protected abstract void ValidateAdditionalData();
 
         /// <summary>
         /// Строит экземпляр создаваемого объекта по настройкам строителя.
         /// </summary>
         /// <returns> Экземпляр создаваемого объекта</returns>
-        public TProduct BuildEntity()
+        public TProduct Build()
         {
-
-            ValidateBaseContent();
-            ValidateAdditionalContent();
+            ValidateData();
             return _objectData.RecreateOriginal() as TProduct;
         }
 
@@ -100,28 +124,11 @@
         /// <returns>DTO с версия создаваемого объекта</returns>
         public TDTO GetDTO()
         {
-            ValidateBaseContent();
-            ValidateAdditionalContent();
+            ValidateData();
             return _objectData;
         }
-        /// <summary>
-        /// Проверяет правильность заполения дополнительных данных.
-        /// </summary>
-        protected abstract void ValidateAdditionalContent();
+        
     }
-
-    /// <summary>
-    /// удалить в последующих версиях
-    /// </summary>
-    /// <typeparam name="TBuilder"></typeparam>
-    /// <typeparam name="TProduct"></typeparam>
-    /// <typeparam name="TDTO"></typeparam>
-    public abstract class TestBuilder<TBuilder, TProduct, TDTO> : BGO_Builder<TBuilder, TProduct, TDTO>
-        where TBuilder : BGO_Builder<TBuilder, TProduct, TDTO>
-        where TProduct : BaseGameObject
-        where TDTO : BGO_DTO, new()
-    {
-
-    }
+    
 
 }

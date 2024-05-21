@@ -2,30 +2,25 @@
 {
     public partial class Equipment
     {
-        //надо переписать
-        
-        /*public class EquipmentBuilder : BaseBuilder<EquipmentBuilder, Equipment, EquipmentDTO>
+        public class EquipmentBuilder : BEO_Builder<EquipmentBuilder, Equipment, EquipmentDTO>
         {
-            public EquipmentBuilder SetEffect(BaseEffectDTO newEffect)
+            public EquipmentBuilder() : base() { }
+
+            public EquipmentBuilder SetEBodyPart(EBodyPart bodyPart)
             {
-                int newEffectHashCode = newEffect.GetHashCode();
-                foreach (var effect in _entityData.Effects)
-                {
-                    if (newEffectHashCode == effect.GetHashCode()) throw new Exception("Такой эффект уже существует!");
-                }
-                _entityData.Effects.Add(newEffect);
+                _objectData.BodyPart = bodyPart;
                 return this;
             }
-            public EquipmentBuilder SetBodypart(EBodyPart bodyPart)
+            protected override void ResetAdditionalData()
             {
-                if (bodyPart == EBodyPart.None) throw new ArgumentException("None в свойстве bodyPart недопутим");
-                _entityData.BodyPart = bodyPart;
-                return this;
+                base.ResetAdditionalData();
+                _objectData.BodyPart = EBodyPart.None;
             }
-            protected override void ValidateAdditionalContent()
+            protected override void ValidateAdditionalData()
             {
-                if (_entityData.Effects?.Count == 0) throw new ArgumentException("Не добавлено ниодногоэффекта");
+                base.ValidateAdditionalData();
+                if (_objectData.BodyPart == EBodyPart.None) throw new ArgumentException("Не задан слот тела.");
             }
-        }*/
+        }
     }
 }

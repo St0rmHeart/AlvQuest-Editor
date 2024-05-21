@@ -49,7 +49,21 @@
 
             public override Character RecreateOriginal()
             {
-                throw new NotImplementedException();
+                var character = new Character(
+                    name: BaseData.Name,
+                    description: BaseData.Description,
+                    iconName: BaseData.Icon)
+                {
+                    Level = Level,
+                    Xp = Xp,
+                    Gold = Gold,
+                    CharPoints = CharPoints,
+                    _characteristics = new Dictionary<ECharacteristic, int>(Characteristics),
+                    _perks = Perks.Select(perkDTO => perkDTO.RecreateOriginal()).ToList(),
+                    _equipment = Equipment.ToDictionary(kv => kv.Key, kv => kv.Value.RecreateOriginal()),
+                    _spells = Spells.Select(spellDTO => spellDTO.RecreateOriginal()).ToList()
+                };
+                return character;
             }
         }
     }
