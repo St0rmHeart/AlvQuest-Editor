@@ -6,12 +6,12 @@
         /// <summary>
         /// 
         /// </summary>
-        private readonly CharacterSlot _player;
-        
+        public CharacterSlot _player { get; private set; }
+
         /// <summary>
         /// 
         /// </summary>
-        private readonly CharacterSlot _enemy;
+        public CharacterSlot _enemy { get; private set; }
 
         /// <summary>
         /// 
@@ -111,6 +111,33 @@
             
         }
         
+        public void Installation()
+        {
+            //проброска ссылок между всеми объектами
+            LinksDTO linksDTO = new() {
+                CurrentArena = this
+            };
+            CharacterSlot[] initArray = [_player, _enemy];
+            for (int i = 0; i < initArray.Length; i++)
+            {
+                var pointer1 = initArray[i];
+                var pointer2 = initArray[(i + 1) % 2];
+
+                linksDTO.PlayerCharacterSlot = pointer1;
+                linksDTO.EnemyCharacterSlot = pointer2;
+
+                //установка ссылки на переключателя хода
+                pointer1.TurnSwitcherModule = TurnSwitchModule;
+                //установка ссылки на модуль урона
+                pointer1.DamageModule = _damageModule;
+                //установка ссылки на оппонента
+                pointer1.CurrentOpponent = pointer2;
+                //инициализация всех эффектов в снаряжении персонажа
+                pointer1.Character.Installation(linksDTO);
+            }
+
+        }
+
         #endregion
     }
 }

@@ -31,8 +31,10 @@
             _links = links;
         }
 
-        public override void Installation(CharacterSlot owner, CharacterSlot enemy)
+        public override void Installation(LinksDTO linksDTO)
         {
+            CharacterSlot owner = linksDTO.PlayerCharacterSlot;
+            CharacterSlot enemy = linksDTO.EnemyCharacterSlot;
             for (int i = 0; i < _links.Count; i++)
             {
                 var link = _links[i];

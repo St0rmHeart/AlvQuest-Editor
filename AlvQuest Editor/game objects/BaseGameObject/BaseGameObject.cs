@@ -53,7 +53,7 @@
         /// </summary>
         /// <param name="owner"></param>
         /// <param name="enemy"></param>
-        public abstract void Installation(CharacterSlot owner, CharacterSlot enemy);
+        public abstract void Installation(LinksDTO linksDTO);
 
         /// <summary>
         /// Деинсталляция объекта. Вызывается после завершения сражения.

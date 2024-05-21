@@ -97,9 +97,27 @@ namespace AlvQuest_Editor
         /// <param name="iconName"> Иконка персонажа</param>
         private Character(string name, string description, string iconName) : base(name, description, iconName) { }
 
-        public override void Installation(CharacterSlot owner, CharacterSlot enemy)
+        public override void Installation(LinksDTO linksDTO)
         {
-            throw new NotImplementedException();
+            foreach (Equipment item in _equipment.Values)
+            {
+                linksDTO.CurrentEquipment = item;
+                item.Installation(linksDTO);
+            }
+
+            foreach (Perk perk in _perks)
+            {
+                linksDTO.CurrentPerk = perk;
+                perk.Installation(linksDTO);
+            }
+
+            foreach (Spell spell in _spells)
+            {
+                linksDTO.CurrentSpell = spell;
+                spell.Installation(linksDTO);
+            }
+
+            //throw new NotImplementedException();
         }
         public override void Uninstallation()
         {

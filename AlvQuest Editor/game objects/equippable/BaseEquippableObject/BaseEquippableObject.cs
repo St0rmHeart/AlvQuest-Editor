@@ -34,9 +34,9 @@
             RequirementsForUse = requirementsForUse;
         }
 
-        public override void Installation(CharacterSlot owner, CharacterSlot enemy)
+        public override void Installation(LinksDTO linksDTO)
         {
-            Effects.ForEach(effect => effect.Installation(owner, enemy));
+            Effects.ForEach(effect => effect.Installation(linksDTO));
         }
 
         public override void Uninstallation()

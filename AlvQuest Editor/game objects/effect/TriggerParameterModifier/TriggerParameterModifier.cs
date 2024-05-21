@@ -243,9 +243,12 @@
         }
         #endregion
 
-        public override void Installation(CharacterSlot owner, CharacterSlot enemy)
+        public override void Installation(LinksDTO linksDTO)
         {
             _isActive = false;
+
+            CharacterSlot owner = linksDTO.PlayerCharacterSlot;
+            CharacterSlot enemy = linksDTO.EnemyCharacterSlot;
 
             for (int i = 0; i < _links.Count; i++)
             {
